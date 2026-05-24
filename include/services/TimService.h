@@ -12,6 +12,7 @@ public:
     Igrac* dodajIgracaUTim(int idTima, const std::string& ime, const std::string& prezime, int brojDresa, const std::string& pozicija);
     const std::vector<Tim*>& vratiSveTimove() const;
     Tim* pronadjiTim(int idTima) const;
+    Igrac* pronadjiIgraca(int idIgraca) const;
     const std::vector<Igrac*>& vratiIgraceTima(int idTima) const;
 
 private:

@@ -34,6 +34,19 @@ Tim* TimService::pronadjiTim(int idTima) const {
     return timRepository.findById(idTima);
 }
 
+Igrac* TimService::pronadjiIgraca(int idIgraca) const {
+    const std::vector<Tim*>& timovi = timRepository.getAll();
+
+    for (Tim* tim : timovi) {
+        Igrac* igrac = tim->pronadjiIgracaPoId(idIgraca);
+        if (igrac != nullptr) {
+            return igrac;
+        }
+    }
+
+    return nullptr;
+}
+
 const std::vector<Igrac*>& TimService::vratiIgraceTima(int idTima) const {
     Tim* tim = pronadjiTim(idTima);
     if (tim == nullptr) {

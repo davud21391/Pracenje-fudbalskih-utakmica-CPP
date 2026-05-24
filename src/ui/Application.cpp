@@ -49,6 +49,12 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 3:
                 dodajUtakmicu();
                 break;
+            case 5:
+                evidentirajStrijelca();
+                break;
+            case 9:
+                prikaziListuStrijelaca();
+                break;
             case 12:
                 prikaziTimove();
                 break;
@@ -63,11 +69,9 @@ void Application::obradiIzbor(int izbor, bool& running) {
                 std::cout << "Zatvaranje aplikacije.\n";
                 break;
             case 4:
-            case 5:
             case 6:
             case 7:
             case 8:
-            case 9:
             case 10:
             case 11:
                 std::cout << "Ova funkcionalnost je planirana za naredne faze implementacije.\n";
@@ -149,6 +153,45 @@ void Application::dodajUtakmicu() {
     std::cout << "Utakmica uspjesno dodata. ID utakmice: " << utakmica->getIdUtakmice() << "\n";
 }
 
+void Application::evidentirajStrijelca() {
+    if (utakmicaService.vratiSveUtakmice().empty()) {
+        std::cout << "Prvo morate unijeti barem jednu utakmicu.\n";
+        return;
+    }
+
+    const int idUtakmice = ucitajInt("Unesite ID utakmice: ");
+    Utakmica* utakmica = utakmicaService.pronadjiUtakmicu(idUtakmice);
+    if (utakmica == nullptr) {
+        std::cout << "Utakmica sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    const Tim* domacin = timService.pronadjiTim(utakmica->getIdDomacina());
+    const Tim* gost = timService.pronadjiTim(utakmica->getIdGosta());
+
+    std::cout << "Dostupni igraci za ovu utakmicu:\n";
+    if (domacin != nullptr) {
+        std::cout << "- " << domacin->getNaziv() << ":\n";
+        for (const Igrac* igrac : domacin->getIgraci()) {
+            std::cout << "  ID " << igrac->getIdIgraca() << " | " << igrac->getPunoIme() << " | DRES " << igrac->getBrojDresa() << "\n";
+        }
+    }
+
+    if (gost != nullptr) {
+        std::cout << "- " << gost->getNaziv() << ":\n";
+        for (const Igrac* igrac : gost->getIgraci()) {
+            std::cout << "  ID " << igrac->getIdIgraca() << " | " << igrac->getPunoIme() << " | DRES " << igrac->getBrojDresa() << "\n";
+        }
+    }
+
+    const int idIgraca = ucitajInt("Unesite ID igraca koji je postigao gol: ");
+    const int minuta = ucitajInt("Unesite minutu gola: ");
+    const bool autoGol = ucitajDaNe("Da li je autogol? (d/n): ");
+
+    const Strijelac strijelac = utakmicaService.dodajStrijelca(idUtakmice, idIgraca, minuta, autoGol);
+    std::cout << "Gol evidentiran. ID strijelca: " << strijelac.getIdStrijelca() << "\n";
+}
+
 void Application::prikaziTimove() const {
     const std::vector<Tim*>& timovi = timService.vratiSveTimove();
 
@@ -217,8 +260,64 @@ void Application::prikaziUtakmice() const {
                   << " | " << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
                   << " " << utakmica->getRezultatDomacin()
                   << ":" << utakmica->getRezultatGost() << " "
-                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost")
+                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost");
+
+        if (!utakmica->getStrijelci().empty()) {
+            std::cout << " | Strijelci: ";
+            bool prvi = true;
+            for (const Strijelac& strijelac : utakmica->getStrijelci()) {
+                Igrac* igrac = timService.pronadjiIgraca(strijelac.getIdIgraca());
+                if (!prvi) {
+                    std::cout << ", ";
+                }
+
+                std::cout << (igrac != nullptr ? igrac->getPunoIme() : "Nepoznat igrac")
+                          << " (" << strijelac.getMinuta() << "')";
+
+                if (strijelac.isAutoGol()) {
+                    std::cout << " [AG]";
+                }
+
+                prvi = false;
+            }
+        }
+
+        std::cout
                   << "\n";
+    }
+}
+
+void Application::prikaziListuStrijelaca() const {
+    const std::vector<StatistikaStrijelca> statistika = utakmicaService.vratiListuStrijelaca();
+    if (statistika.empty()) {
+        std::cout << "Nema evidentiranih strijelaca.\n";
+        return;
+    }
+
+    std::cout << "\n--- Lista strijelaca ---\n";
+    int redniBroj = 1;
+    for (const StatistikaStrijelca& stavka : statistika) {
+        std::cout << redniBroj++ << ". " << stavka.punoIme
+                  << " | Golovi: " << stavka.brojGolova
+                  << " | ID igraca: " << stavka.idIgraca << "\n";
+    }
+}
+
+bool Application::ucitajDaNe(const char* prompt) const {
+    while (true) {
+        std::string unos;
+        std::cout << prompt;
+        std::getline(std::cin >> std::ws, unos);
+
+        if (unos == "d" || unos == "D") {
+            return true;
+        }
+
+        if (unos == "n" || unos == "N") {
+            return false;
+        }
+
+        std::cout << "Molimo unesite 'd' ili 'n'.\n";
     }
 }
 
