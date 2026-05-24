@@ -1,0 +1,52 @@
+[
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/main.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/main.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/models/Osoba.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/models/Osoba.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/models/Igrac.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/models/Igrac.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/models/Tim.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/models/Tim.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/models/Strijelac.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/models/Strijelac.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/models/Utakmica.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/models/Utakmica.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/repositories/TimRepository.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/repositories/TimRepository.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/repositories/UtakmicaRepository.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/repositories/UtakmicaRepository.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/services/TimService.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/services/TimService.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/ui/Application.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/ui/Application.cpp"
+  }
+]
