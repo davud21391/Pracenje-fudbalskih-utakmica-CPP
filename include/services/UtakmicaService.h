@@ -37,6 +37,8 @@ public:
     std::vector<StatistikaStrijelca> vratiListuStrijelaca() const;
     std::vector<StatistikaTima> vratiTabelu() const;
     std::vector<const Utakmica*> vratiUtakmiceTima(int idTima) const;
+    std::vector<const Utakmica*> pretraziPoDatumu(const std::string& datum) const;
+    std::vector<const Utakmica*> pretraziPoKolu(int kolo) const;
 
 private:
     UtakmicaRepository& utakmicaRepository;

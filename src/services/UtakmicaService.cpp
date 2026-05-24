@@ -174,6 +174,37 @@ std::vector<const Utakmica*> UtakmicaService::vratiUtakmiceTima(int idTima) cons
     return rezultat;
 }
 
+std::vector<const Utakmica*> UtakmicaService::pretraziPoDatumu(const std::string& datum) const {
+    const std::string normalizovanDatum = normalizujDatum(datum);
+    if (!validanDatumFormat(normalizovanDatum)) {
+        throw std::runtime_error("Datum mora biti u formatu dd.mm.gggg.");
+    }
+
+    std::vector<const Utakmica*> rezultat;
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        if (utakmica->getDatum() == normalizovanDatum) {
+            rezultat.push_back(utakmica);
+        }
+    }
+
+    return rezultat;
+}
+
+std::vector<const Utakmica*> UtakmicaService::pretraziPoKolu(int kolo) const {
+    if (kolo < 1) {
+        throw std::runtime_error("Kolo mora biti veci broj od 0.");
+    }
+
+    std::vector<const Utakmica*> rezultat;
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        if (utakmica->getKolo() == kolo) {
+            rezultat.push_back(utakmica);
+        }
+    }
+
+    return rezultat;
+}
+
 void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) const {
     if (timRepository.findById(idDomacina) == nullptr) {
         throw std::runtime_error("Domaci tim ne postoji.");
