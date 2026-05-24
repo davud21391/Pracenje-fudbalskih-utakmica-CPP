@@ -50,6 +50,9 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 3:
                 dodajUtakmicu();
                 break;
+            case 4:
+                obrisiUtakmicu();
+                break;
             case 5:
                 evidentirajStrijelca();
                 break;
@@ -78,7 +81,6 @@ void Application::obradiIzbor(int izbor, bool& running) {
                 running = false;
                 std::cout << "Zatvaranje aplikacije.\n";
                 break;
-            case 4:
             case 10:
             case 11:
                 std::cout << "Ova funkcionalnost je planirana za naredne faze implementacije.\n";
@@ -158,6 +160,34 @@ void Application::dodajUtakmicu() {
 
     Utakmica* utakmica = utakmicaService.dodajUtakmicu(idDomacina, idGosta, datum, rezultatDomacin, rezultatGost, kolo);
     std::cout << "Utakmica uspjesno dodata. ID utakmice: " << utakmica->getIdUtakmice() << "\n";
+}
+
+void Application::obrisiUtakmicu() {
+    if (utakmicaService.vratiSveUtakmice().empty()) {
+        std::cout << "Nema unesenih utakmica za brisanje.\n";
+        return;
+    }
+
+    prikaziUtakmice();
+
+    const int idUtakmice = ucitajInt("Unesite ID utakmice za brisanje: ");
+    Utakmica* utakmica = utakmicaService.pronadjiUtakmicu(idUtakmice);
+    if (utakmica == nullptr) {
+        std::cout << "Utakmica sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    if (!ucitajDaNe("Potvrdite brisanje utakmice? (d/n): ")) {
+        std::cout << "Brisanje utakmice otkazano.\n";
+        return;
+    }
+
+    if (utakmicaService.obrisiUtakmicu(idUtakmice)) {
+        std::cout << "Utakmica uspjesno obrisana.\n";
+        return;
+    }
+
+    std::cout << "Brisanje utakmice nije uspjelo.\n";
 }
 
 void Application::evidentirajStrijelca() {

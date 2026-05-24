@@ -19,6 +19,7 @@ private:
     void dodajTim();
     void dodajIgracaUTim();
     void dodajUtakmicu();
+    void obrisiUtakmicu();
     void evidentirajStrijelca();
     void prikaziTimove() const;
     void prikaziIgraceTima() const;

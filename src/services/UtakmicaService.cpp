@@ -65,6 +65,14 @@ Strijelac UtakmicaService::dodajStrijelca(int idUtakmice, int idIgraca, int minu
     return strijelac;
 }
 
+bool UtakmicaService::obrisiUtakmicu(int idUtakmice) {
+    if (utakmicaRepository.findById(idUtakmice) == nullptr) {
+        return false;
+    }
+
+    return utakmicaRepository.remove(idUtakmice);
+}
+
 std::vector<StatistikaStrijelca> UtakmicaService::vratiListuStrijelaca() const {
     std::map<int, StatistikaStrijelca> statistikaPoIgracu;
 
