@@ -13,6 +13,19 @@ struct StatistikaStrijelca {
     int brojGolova;
 };
 
+struct StatistikaTima {
+    int idTima;
+    std::string nazivTima;
+    int odigrane;
+    int pobjede;
+    int nerijesene;
+    int porazi;
+    int datiGolovi;
+    int primljeniGolovi;
+    int golRazlika;
+    int bodovi;
+};
+
 class UtakmicaService {
 public:
     UtakmicaService(UtakmicaRepository& utakmicaRepository, TimRepository& timRepository);
@@ -22,6 +35,7 @@ public:
     const std::vector<Utakmica*>& vratiSveUtakmice() const;
     Utakmica* pronadjiUtakmicu(int idUtakmice) const;
     std::vector<StatistikaStrijelca> vratiListuStrijelaca() const;
+    std::vector<StatistikaTima> vratiTabelu() const;
 
 private:
     UtakmicaRepository& utakmicaRepository;

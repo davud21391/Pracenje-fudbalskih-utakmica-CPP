@@ -22,6 +22,7 @@ private:
     void evidentirajStrijelca();
     void prikaziTimove() const;
     void prikaziIgraceTima() const;
+    void prikaziTabelu() const;
     void prikaziUtakmice() const;
     void prikaziListuStrijelaca() const;
     bool ucitajDaNe(const char* prompt) const;
