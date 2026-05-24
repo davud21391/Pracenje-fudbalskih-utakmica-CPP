@@ -36,6 +36,7 @@ public:
     Utakmica* pronadjiUtakmicu(int idUtakmice) const;
     std::vector<StatistikaStrijelca> vratiListuStrijelaca() const;
     std::vector<StatistikaTima> vratiTabelu() const;
+    std::vector<const Utakmica*> vratiUtakmiceTima(int idTima) const;
 
 private:
     UtakmicaRepository& utakmicaRepository;

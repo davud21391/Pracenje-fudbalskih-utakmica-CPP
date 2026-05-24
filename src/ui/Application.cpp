@@ -55,6 +55,9 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 7:
                 prikaziTabelu();
                 break;
+            case 8:
+                prikaziUtakmiceTima();
+                break;
             case 9:
                 prikaziListuStrijelaca();
                 break;
@@ -73,7 +76,6 @@ void Application::obradiIzbor(int izbor, bool& running) {
                 break;
             case 4:
             case 6:
-            case 8:
             case 10:
             case 11:
                 std::cout << "Ova funkcionalnost je planirana za naredne faze implementacije.\n";
@@ -312,6 +314,41 @@ void Application::prikaziTabelu() const {
                   << " | " << red.primljeniGolovi
                   << " | " << red.golRazlika
                   << " | " << red.bodovi
+                  << "\n";
+    }
+}
+
+void Application::prikaziUtakmiceTima() const {
+    if (timService.vratiSveTimove().empty()) {
+        std::cout << "Nema unesenih timova.\n";
+        return;
+    }
+
+    const int idTima = ucitajInt("Unesite ID tima za pregled utakmica: ");
+    const Tim* trazeniTim = timService.pronadjiTim(idTima);
+    if (trazeniTim == nullptr) {
+        std::cout << "Tim sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    const std::vector<const Utakmica*> utakmice = utakmicaService.vratiUtakmiceTima(idTima);
+    if (utakmice.empty()) {
+        std::cout << "Tim " << trazeniTim->getNaziv() << " nema evidentiranih utakmica.\n";
+        return;
+    }
+
+    std::cout << "\n--- Utakmice tima: " << trazeniTim->getNaziv() << " ---\n";
+    for (const Utakmica* utakmica : utakmice) {
+        const Tim* domacin = timService.pronadjiTim(utakmica->getIdDomacina());
+        const Tim* gost = timService.pronadjiTim(utakmica->getIdGosta());
+
+        std::cout << "ID: " << utakmica->getIdUtakmice()
+                  << " | Kolo: " << utakmica->getKolo()
+                  << " | Datum: " << utakmica->getDatum()
+                  << " | " << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
+                  << " " << utakmica->getRezultatDomacin()
+                  << ":" << utakmica->getRezultatGost() << " "
+                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost")
                   << "\n";
     }
 }

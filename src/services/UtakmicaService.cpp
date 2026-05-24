@@ -159,6 +159,21 @@ std::vector<StatistikaTima> UtakmicaService::vratiTabelu() const {
     return tabela;
 }
 
+std::vector<const Utakmica*> UtakmicaService::vratiUtakmiceTima(int idTima) const {
+    if (timRepository.findById(idTima) == nullptr) {
+        throw std::runtime_error("Tim sa zadanim ID-em ne postoji.");
+    }
+
+    std::vector<const Utakmica*> rezultat;
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        if (utakmica->getIdDomacina() == idTima || utakmica->getIdGosta() == idTima) {
+            rezultat.push_back(utakmica);
+        }
+    }
+
+    return rezultat;
+}
+
 void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) const {
     if (timRepository.findById(idDomacina) == nullptr) {
         throw std::runtime_error("Domaci tim ne postoji.");
