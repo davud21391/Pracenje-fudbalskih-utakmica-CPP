@@ -1,0 +1,3 @@
+1;Fk sarajevo;Sarajevo;Mario;1946
+2;Fk zeljeznicar;Sarajevo;Milan;1943
+3;Fk Velez;Mostar;Ibro Rahimic;1950

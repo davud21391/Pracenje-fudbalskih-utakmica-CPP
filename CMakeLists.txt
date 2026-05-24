@@ -17,6 +17,7 @@ add_executable(FootballResultsTracker
     src/repositories/TimRepository.cpp
     src/repositories/UtakmicaRepository.cpp
     src/services/TimService.cpp
+    src/services/PersistenceService.cpp
     src/services/UtakmicaService.cpp
     src/ui/Application.cpp
 )

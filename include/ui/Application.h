@@ -1,5 +1,6 @@
 #pragma once
 
+#include "services/PersistenceService.h"
 #include "services/UtakmicaService.h"
 #include "services/TimService.h"
 
@@ -13,6 +14,7 @@ private:
     UtakmicaRepository utakmicaRepository;
     TimService timService;
     UtakmicaService utakmicaService;
+    PersistenceService persistenceService;
 
     void prikaziMeni() const;
     void obradiIzbor(int izbor, bool& running);
@@ -21,6 +23,8 @@ private:
     void dodajUtakmicu();
     void obrisiUtakmicu();
     void evidentirajStrijelca();
+    void spremiPodatke() const;
+    void ucitajPodatke();
     void prikaziTimove() const;
     void prikaziIgraceTima() const;
     void prikaziTabelu() const;

@@ -17,6 +17,7 @@ public:
     Utakmica* findById(int idUtakmice) const;
     const std::vector<Utakmica*>& getAll() const;
     bool remove(int idUtakmice);
+    void clear();
 
 private:
     std::vector<Utakmica*> utakmice;

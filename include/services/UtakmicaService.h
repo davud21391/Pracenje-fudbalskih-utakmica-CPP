@@ -40,6 +40,8 @@ public:
     std::vector<const Utakmica*> vratiUtakmiceTima(int idTima) const;
     std::vector<const Utakmica*> pretraziPoDatumu(const std::string& datum) const;
     std::vector<const Utakmica*> pretraziPoKolu(int kolo) const;
+    void postaviSljedeceIdVrijednosti(int sljedecaUtakmicaId, int sljedeciStrijelacId);
+
 
 private:
     UtakmicaRepository& utakmicaRepository;

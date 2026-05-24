@@ -4,9 +4,7 @@
 #include <stdexcept>
 
 UtakmicaRepository::~UtakmicaRepository() {
-    for (Utakmica* utakmica : utakmice) {
-        delete utakmica;
-    }
+    clear();
 }
 
 void UtakmicaRepository::add(Utakmica* utakmica) {
@@ -47,4 +45,13 @@ bool UtakmicaRepository::remove(int idUtakmice) {
 
     delete utakmica;
     return true;
+}
+
+void UtakmicaRepository::clear() {
+    for (Utakmica* utakmica : utakmice) {
+        delete utakmica;
+    }
+
+    utakmice.clear();
+    utakmicePoId.clear();
 }
