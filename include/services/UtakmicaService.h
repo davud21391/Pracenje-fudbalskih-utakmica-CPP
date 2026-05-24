@@ -32,6 +32,7 @@ public:
 
     Utakmica* dodajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo);
     Strijelac dodajStrijelca(int idUtakmice, int idIgraca, int minuta, bool autoGol);
+    bool obrisiUtakmicu(int idUtakmice);
     const std::vector<Utakmica*>& vratiSveUtakmice() const;
     Utakmica* pronadjiUtakmicu(int idUtakmice) const;
     std::vector<StatistikaStrijelca> vratiListuStrijelaca() const;
