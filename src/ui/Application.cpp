@@ -21,7 +21,7 @@ void Application::run() {
 void Application::prikaziMeni() const {
     std::cout << "\n=== Pracenje rezultata fudbalskih utakmica ===\n";
     std::cout << "1. Dodaj tim\n";
-    std::cout << "2. Unesi rezultat utakmice\n";
+    std::cout << "2. Dodaj igraca timu\n";
     std::cout << "3. Uredi podatke o utakmici\n";
     std::cout << "4. Obrisi utakmicu\n";
     std::cout << "5. Evidentiraj strijelce\n";
@@ -32,6 +32,7 @@ void Application::prikaziMeni() const {
     std::cout << "10. Spremi podatke u datoteku\n";
     std::cout << "11. Ucitaj podatke iz datoteke\n";
     std::cout << "12. Prikazi timove\n";
+    std::cout << "13. Prikazi igrace tima\n";
     std::cout << "0. Izlaz\n";
 }
 
@@ -41,14 +42,19 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 1:
                 dodajTim();
                 break;
+            case 2:
+                dodajIgracaUTim();
+                break;
             case 12:
                 prikaziTimove();
+                break;
+            case 13:
+                prikaziIgraceTima();
                 break;
             case 0:
                 running = false;
                 std::cout << "Zatvaranje aplikacije.\n";
                 break;
-            case 2:
             case 3:
             case 4:
             case 5:
@@ -89,6 +95,33 @@ void Application::dodajTim() {
     std::cout << "Tim uspjesno dodat. ID: " << tim->getIdTima() << "\n";
 }
 
+void Application::dodajIgracaUTim() {
+    if (timService.vratiSveTimove().empty()) {
+        std::cout << "Prvo morate dodati barem jedan tim.\n";
+        return;
+    }
+
+    std::string ime;
+    std::string prezime;
+    std::string pozicija;
+
+    const int idTima = ucitajInt("Unesite ID tima: ");
+
+    std::cout << "Unesite ime igraca: ";
+    std::getline(std::cin >> std::ws, ime);
+
+    std::cout << "Unesite prezime igraca: ";
+    std::getline(std::cin, prezime);
+
+    const int brojDresa = ucitajInt("Unesite broj dresa: ");
+
+    std::cout << "Unesite poziciju igraca: ";
+    std::getline(std::cin >> std::ws, pozicija);
+
+    Igrac* igrac = timService.dodajIgracaUTim(idTima, ime, prezime, brojDresa, pozicija);
+    std::cout << "Igrac uspjesno dodat. ID igraca: " << igrac->getIdIgraca() << "\n";
+}
+
 void Application::prikaziTimove() const {
     const std::vector<Tim*>& timovi = timService.vratiSveTimove();
 
@@ -104,6 +137,36 @@ void Application::prikaziTimove() const {
                   << " | Grad: " << tim->getGrad()
                   << " | Trener: " << tim->getTrener()
                   << " | Godina osnivanja: " << tim->getGodinaOsnivanja()
+                  << "\n";
+    }
+}
+
+void Application::prikaziIgraceTima() const {
+    if (timService.vratiSveTimove().empty()) {
+        std::cout << "Nema unesenih timova.\n";
+        return;
+    }
+
+    const int idTima = ucitajInt("Unesite ID tima za pregled igraca: ");
+    Tim* tim = timService.pronadjiTim(idTima);
+
+    if (tim == nullptr) {
+        std::cout << "Tim sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    const std::vector<Igrac*>& igraci = timService.vratiIgraceTima(idTima);
+    if (igraci.empty()) {
+        std::cout << "Tim " << tim->getNaziv() << " nema evidentiranih igraca.\n";
+        return;
+    }
+
+    std::cout << "\n--- Igraci tima: " << tim->getNaziv() << " ---\n";
+    for (const Igrac* igrac : igraci) {
+        std::cout << "ID: " << igrac->getIdIgraca()
+                  << " | Ime i prezime: " << igrac->getPunoIme()
+                  << " | Broj dresa: " << igrac->getBrojDresa()
+                  << " | Pozicija: " << igrac->getPozicija()
                   << "\n";
     }
 }
