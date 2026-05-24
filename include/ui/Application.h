@@ -20,7 +20,10 @@ private:
     void obradiIzbor(int izbor, bool& running);
     void dodajTim();
     void dodajIgracaUTim();
+    void meniUtakmice();
     void dodajUtakmicu();
+    void urediUtakmicu();
+    void sortirajUtakmice() const;
     void obrisiUtakmicu();
     void evidentirajStrijelca();
     void spremiPodatke() const;

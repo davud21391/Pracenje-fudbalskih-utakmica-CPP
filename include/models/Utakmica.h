@@ -18,6 +18,8 @@ public:
     int getKolo() const;
     const std::vector<Strijelac>& getStrijelci() const;
 
+    void setIdDomacina(int noviIdDomacina);
+    void setIdGosta(int noviIdGosta);
     void setDatum(const std::string& noviDatum);
     void setRezultatDomacin(int noviRezultatDomacin);
     void setRezultatGost(int noviRezultatGost);

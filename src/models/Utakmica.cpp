@@ -43,6 +43,14 @@ const std::vector<Strijelac>& Utakmica::getStrijelci() const {
     return strijelci;
 }
 
+void Utakmica::setIdDomacina(int noviIdDomacina) {
+    idDomacina = noviIdDomacina;
+}
+
+void Utakmica::setIdGosta(int noviIdGosta) {
+    idGosta = noviIdGosta;
+}
+
 void Utakmica::setDatum(const std::string& noviDatum) {
     datum = noviDatum;
 }

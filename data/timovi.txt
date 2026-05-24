@@ -1,3 +1,2 @@
-1;Fk sarajevo;Sarajevo;Mario;1946
-2;Fk zeljeznicar;Sarajevo;Milan;1943
-3;Fk Velez;Mostar;Ibro Rahimic;1950
+1;Fk Sarajevo;Sarajevo;Mario Cvitanovic;1946
+2;Fk Zeljeznicar ;Sarajevo;Nema ga;1999

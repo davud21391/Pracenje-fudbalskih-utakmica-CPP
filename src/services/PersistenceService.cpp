@@ -7,7 +7,9 @@
 
 #include <filesystem>
 #include <fstream>
+#include <mutex>
 #include <sstream>
+#include <thread>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -92,48 +94,116 @@ void PersistenceService::spremiPodatke(const std::string& direktorij) const {
     const fs::path baza(direktorij);
     fs::create_directories(baza);
 
-    std::ofstream timoviDat(baza / "timovi.txt");
-    std::ofstream igraciDat(baza / "igraci.txt");
-    std::ofstream utakmiceDat(baza / "utakmice.txt");
-    std::ofstream strijelciDat(baza / "strijelci.txt");
+    std::exception_ptr sacuvanaGreska;
+    std::mutex greskaMutex;
 
-    if (!timoviDat || !igraciDat || !utakmiceDat || !strijelciDat) {
-        throw std::runtime_error("Nije moguce otvoriti datoteke za spremanje podataka.");
-    }
+    const auto sacuvajTimove = [this, &baza, &sacuvanaGreska, &greskaMutex]() {
+        try {
+            std::ofstream timoviDat(baza / "timovi.txt");
+            if (!timoviDat) {
+                throw std::runtime_error("Nije moguce otvoriti timovi.txt za spremanje.");
+            }
 
-    for (const Tim* tim : timRepository.getAll()) {
-        timoviDat << tim->getIdTima() << ';'
-                  << tim->getNaziv() << ';'
-                  << tim->getGrad() << ';'
-                  << tim->getTrener() << ';'
-                  << tim->getGodinaOsnivanja() << '\n';
-
-        for (const Igrac* igrac : tim->getIgraci()) {
-            igraciDat << igrac->getIdIgraca() << ';'
-                      << igrac->getIdTima() << ';'
-                      << igrac->getIme() << ';'
-                      << igrac->getPrezime() << ';'
-                      << igrac->getBrojDresa() << ';'
-                      << igrac->getPozicija() << '\n';
+            for (const Tim* tim : timRepository.getAll()) {
+                timoviDat << tim->getIdTima() << ';'
+                          << tim->getNaziv() << ';'
+                          << tim->getGrad() << ';'
+                          << tim->getTrener() << ';'
+                          << tim->getGodinaOsnivanja() << '\n';
+            }
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(greskaMutex);
+            if (sacuvanaGreska == nullptr) {
+                sacuvanaGreska = std::current_exception();
+            }
         }
-    }
+    };
 
-    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
-        utakmiceDat << utakmica->getIdUtakmice() << ';'
-                    << utakmica->getIdDomacina() << ';'
-                    << utakmica->getIdGosta() << ';'
-                    << utakmica->getDatum() << ';'
-                    << utakmica->getRezultatDomacin() << ';'
-                    << utakmica->getRezultatGost() << ';'
-                    << utakmica->getKolo() << '\n';
+    const auto sacuvajIgrace = [this, &baza, &sacuvanaGreska, &greskaMutex]() {
+        try {
+            std::ofstream igraciDat(baza / "igraci.txt");
+            if (!igraciDat) {
+                throw std::runtime_error("Nije moguce otvoriti igraci.txt za spremanje.");
+            }
 
-        for (const Strijelac& strijelac : utakmica->getStrijelci()) {
-            strijelciDat << strijelac.getIdStrijelca() << ';'
-                         << strijelac.getIdUtakmice() << ';'
-                         << strijelac.getIdIgraca() << ';'
-                         << strijelac.getMinuta() << ';'
-                         << (strijelac.isAutoGol() ? 1 : 0) << '\n';
+            for (const Tim* tim : timRepository.getAll()) {
+                for (const Igrac* igrac : tim->getIgraci()) {
+                    igraciDat << igrac->getIdIgraca() << ';'
+                              << igrac->getIdTima() << ';'
+                              << igrac->getIme() << ';'
+                              << igrac->getPrezime() << ';'
+                              << igrac->getBrojDresa() << ';'
+                              << igrac->getPozicija() << '\n';
+                }
+            }
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(greskaMutex);
+            if (sacuvanaGreska == nullptr) {
+                sacuvanaGreska = std::current_exception();
+            }
         }
+    };
+
+    const auto sacuvajUtakmice = [this, &baza, &sacuvanaGreska, &greskaMutex]() {
+        try {
+            std::ofstream utakmiceDat(baza / "utakmice.txt");
+            if (!utakmiceDat) {
+                throw std::runtime_error("Nije moguce otvoriti utakmice.txt za spremanje.");
+            }
+
+            for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+                utakmiceDat << utakmica->getIdUtakmice() << ';'
+                            << utakmica->getIdDomacina() << ';'
+                            << utakmica->getIdGosta() << ';'
+                            << utakmica->getDatum() << ';'
+                            << utakmica->getRezultatDomacin() << ';'
+                            << utakmica->getRezultatGost() << ';'
+                            << utakmica->getKolo() << '\n';
+            }
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(greskaMutex);
+            if (sacuvanaGreska == nullptr) {
+                sacuvanaGreska = std::current_exception();
+            }
+        }
+    };
+
+    const auto sacuvajStrijelce = [this, &baza, &sacuvanaGreska, &greskaMutex]() {
+        try {
+            std::ofstream strijelciDat(baza / "strijelci.txt");
+            if (!strijelciDat) {
+                throw std::runtime_error("Nije moguce otvoriti strijelci.txt za spremanje.");
+            }
+
+            for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+                for (const Strijelac& strijelac : utakmica->getStrijelci()) {
+                    strijelciDat << strijelac.getIdStrijelca() << ';'
+                                 << strijelac.getIdUtakmice() << ';'
+                                 << strijelac.getIdIgraca() << ';'
+                                 << strijelac.getMinuta() << ';'
+                                 << (strijelac.isAutoGol() ? 1 : 0) << '\n';
+                }
+            }
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(greskaMutex);
+            if (sacuvanaGreska == nullptr) {
+                sacuvanaGreska = std::current_exception();
+            }
+        }
+    };
+
+    std::thread timoviNit(sacuvajTimove);
+    std::thread igraciNit(sacuvajIgrace);
+    std::thread utakmiceNit(sacuvajUtakmice);
+    std::thread strijelciNit(sacuvajStrijelce);
+
+    timoviNit.join();
+    igraciNit.join();
+    utakmiceNit.join();
+    strijelciNit.join();
+
+    if (sacuvanaGreska != nullptr) {
+        std::rethrow_exception(sacuvanaGreska);
     }
 }
 

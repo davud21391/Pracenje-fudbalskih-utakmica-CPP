@@ -27,7 +27,7 @@ void Application::prikaziMeni() const {
     std::cout << "\n=== Pracenje rezultata fudbalskih utakmica ===\n";
     std::cout << "1. Dodaj tim\n";
     std::cout << "2. Dodaj igraca timu\n";
-    std::cout << "3. Dodaj utakmicu\n";
+    std::cout << "3. Upravljanje utakmicama\n";
     std::cout << "4. Obrisi utakmicu\n";
     std::cout << "5. Evidentiraj strijelce\n";
     std::cout << "6. Pretraga utakmica\n";
@@ -52,7 +52,7 @@ void Application::obradiIzbor(int izbor, bool& running) {
                 dodajIgracaUTim();
                 break;
             case 3:
-                dodajUtakmicu();
+                meniUtakmice();
                 break;
             case 4:
                 obrisiUtakmicu();
@@ -97,6 +97,29 @@ void Application::obradiIzbor(int izbor, bool& running) {
         }
     } catch (const std::exception& ex) {
         std::cout << "Greska: " << ex.what() << "\n";
+    }
+}
+
+void Application::meniUtakmice() {
+    std::cout << "\nUpravljanje utakmicama:\n";
+    std::cout << "1. Dodaj utakmicu\n";
+    std::cout << "2. Uredi utakmicu\n";
+    std::cout << "3. Sortiraj utakmice\n";
+
+    const int izbor = ucitajInt("Odaberite opciju: ");
+    switch (izbor) {
+        case 1:
+            dodajUtakmicu();
+            break;
+        case 2:
+            urediUtakmicu();
+            break;
+        case 3:
+            sortirajUtakmice();
+            break;
+        default:
+            std::cout << "Nepostojeca opcija za upravljanje utakmicama.\n";
+            break;
     }
 }
 
@@ -166,6 +189,64 @@ void Application::dodajUtakmicu() {
 
     Utakmica* utakmica = utakmicaService.dodajUtakmicu(idDomacina, idGosta, datum, rezultatDomacin, rezultatGost, kolo);
     std::cout << "Utakmica uspjesno dodata. ID utakmice: " << utakmica->getIdUtakmice() << "\n";
+}
+
+void Application::urediUtakmicu() {
+    if (utakmicaService.vratiSveUtakmice().empty()) {
+        std::cout << "Nema unesenih utakmica za uredjivanje.\n";
+        return;
+    }
+
+    prikaziUtakmice();
+
+    std::string datum;
+    const int idUtakmice = ucitajInt("Unesite ID utakmice za uredjivanje: ");
+    Utakmica* postojecaUtakmica = utakmicaService.pronadjiUtakmicu(idUtakmice);
+    if (postojecaUtakmica == nullptr) {
+        std::cout << "Utakmica sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    const int idDomacina = ucitajInt("Unesite novi ID domaceg tima: ");
+    const int idGosta = ucitajInt("Unesite novi ID gostujuceg tima: ");
+
+    std::cout << "Unesite novi datum utakmice (dd.mm.gggg): ";
+    std::getline(std::cin >> std::ws, datum);
+
+    const int rezultatDomacin = ucitajInt("Unesite novi broj golova domacina: ");
+    const int rezultatGost = ucitajInt("Unesite novi broj golova gosta: ");
+    const int kolo = ucitajInt("Unesite novo kolo: ");
+
+    const bool obrisaniStrijelci = utakmicaService.urediUtakmicu(idUtakmice, idDomacina, idGosta, datum, rezultatDomacin, rezultatGost, kolo);
+    std::cout << "Utakmica uspjesno uredjena.\n";
+
+    if (obrisaniStrijelci) {
+        std::cout << "Napomena: strijelci su obrisani jer su timovi ili rezultat promijenjeni.\n";
+    }
+}
+
+void Application::sortirajUtakmice() const {
+    if (utakmicaService.vratiSveUtakmice().empty()) {
+        std::cout << "Nema unesenih utakmica za sortiranje.\n";
+        return;
+    }
+
+    std::cout << "\nSortiranje utakmica:\n";
+    std::cout << "1. Po datumu\n";
+    std::cout << "2. Po kolu\n";
+
+    const int kriterij = ucitajInt("Odaberite kriterij sortiranja: ");
+    switch (kriterij) {
+        case 1:
+            ispisiListuUtakmica(utakmicaService.sortirajPoDatumu(), "Sortirane utakmice po datumu");
+            break;
+        case 2:
+            ispisiListuUtakmica(utakmicaService.sortirajPoKolu(), "Sortirane utakmice po kolu");
+            break;
+        default:
+            std::cout << "Nepostojeci kriterij sortiranja.\n";
+            break;
+    }
 }
 
 void Application::obrisiUtakmicu() {

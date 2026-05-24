@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{D5F3D188-1787-4BC5-915C-CE88D77B7875}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{5E3C2E67-033D-4F08-A75B-7C4C5ED6B923}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\models\Igrac.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\models\Osoba.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\models\Strijelac.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\models\Tim.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\models\Utakmica.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\repositories\TimRepository.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\repositories\UtakmicaRepository.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\services\PersistenceService.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\services\TimService.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\services\UtakmicaService.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="include\ui\Application.h"><Filter>Header Files</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\models\Igrac.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\models\Osoba.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\models\Strijelac.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\models\Tim.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\models\Utakmica.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\repositories\TimRepository.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\repositories\UtakmicaRepository.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\services\PersistenceService.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\services\TimService.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\services\UtakmicaService.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\ui\Application.cpp"><Filter>Source Files</Filter></ClCompile>
+  </ItemGroup>
+</Project>
