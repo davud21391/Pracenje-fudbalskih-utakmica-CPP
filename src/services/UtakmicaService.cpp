@@ -2,11 +2,22 @@
 
 #include <algorithm>
 #include <cctype>
+#include <map>
 #include <string>
 #include <stdexcept>
 
+namespace {
+bool statistikaPoredjenje(const StatistikaStrijelca& lijevo, const StatistikaStrijelca& desno) {
+    if (lijevo.brojGolova != desno.brojGolova) {
+        return lijevo.brojGolova > desno.brojGolova;
+    }
+
+    return lijevo.punoIme < desno.punoIme;
+}
+}
+
 UtakmicaService::UtakmicaService(UtakmicaRepository& utakmicaRepository, TimRepository& timRepository)
-    : utakmicaRepository(utakmicaRepository), timRepository(timRepository), nextUtakmicaId(1) {}
+    : utakmicaRepository(utakmicaRepository), timRepository(timRepository), nextUtakmicaId(1), nextStrijelacId(1) {}
 
 Utakmica* UtakmicaService::dodajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) {
     const std::string normalizovanDatum = normalizujDatum(datum);
@@ -19,6 +30,55 @@ Utakmica* UtakmicaService::dodajUtakmicu(int idDomacina, int idGosta, const std:
 
 const std::vector<Utakmica*>& UtakmicaService::vratiSveUtakmice() const {
     return utakmicaRepository.getAll();
+}
+
+Utakmica* UtakmicaService::pronadjiUtakmicu(int idUtakmice) const {
+    return utakmicaRepository.findById(idUtakmice);
+}
+
+Strijelac UtakmicaService::dodajStrijelca(int idUtakmice, int idIgraca, int minuta, bool autoGol) {
+    Utakmica* utakmica = pronadjiUtakmicu(idUtakmice);
+    if (utakmica == nullptr) {
+        throw std::runtime_error("Utakmica sa zadanim ID-em ne postoji.");
+    }
+
+    validirajStrijelca(*utakmica, idIgraca, minuta);
+
+    const Strijelac strijelac(nextStrijelacId++, idUtakmice, idIgraca, minuta, autoGol);
+    utakmica->dodajStrijelca(strijelac);
+    return strijelac;
+}
+
+std::vector<StatistikaStrijelca> UtakmicaService::vratiListuStrijelaca() const {
+    std::map<int, StatistikaStrijelca> statistikaPoIgracu;
+
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        for (const Strijelac& strijelac : utakmica->getStrijelci()) {
+            if (strijelac.isAutoGol()) {
+                continue;
+            }
+
+            Igrac* igrac = pronadjiIgracaUMecu(*utakmica, strijelac.getIdIgraca());
+            if (igrac == nullptr) {
+                continue;
+            }
+
+            auto it = statistikaPoIgracu.find(igrac->getIdIgraca());
+            if (it == statistikaPoIgracu.end()) {
+                statistikaPoIgracu[igrac->getIdIgraca()] = StatistikaStrijelca{igrac->getIdIgraca(), igrac->getPunoIme(), 1};
+            } else {
+                it->second.brojGolova += 1;
+            }
+        }
+    }
+
+    std::vector<StatistikaStrijelca> rezultat;
+    for (const auto& [_, statistika] : statistikaPoIgracu) {
+        rezultat.push_back(statistika);
+    }
+
+    std::sort(rezultat.begin(), rezultat.end(), statistikaPoredjenje);
+    return rezultat;
 }
 
 void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) const {
@@ -44,6 +104,21 @@ void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::
 
     if (kolo < 1) {
         throw std::runtime_error("Kolo mora biti veci broj od 0.");
+    }
+}
+
+void UtakmicaService::validirajStrijelca(const Utakmica& utakmica, int idIgraca, int minuta) const {
+    if (pronadjiIgracaUMecu(utakmica, idIgraca) == nullptr) {
+        throw std::runtime_error("Igrac ne pripada timovima izabrane utakmice.");
+    }
+
+    if (minuta < 1 || minuta > 130) {
+        throw std::runtime_error("Minuta gola mora biti izmedju 1 i 130.");
+    }
+
+    const int maksimalanBrojGolova = utakmica.getRezultatDomacin() + utakmica.getRezultatGost();
+    if (ukupanBrojEvidentiranihGolova(utakmica) >= maksimalanBrojGolova) {
+        throw std::runtime_error("Svi golovi za ovu utakmicu su vec evidentirani.");
     }
 }
 
@@ -102,4 +177,25 @@ bool UtakmicaService::validanDatumFormat(const std::string& datum) const {
     }
 
     return true;
+}
+
+Igrac* UtakmicaService::pronadjiIgracaUMecu(const Utakmica& utakmica, int idIgraca) const {
+    Tim* domacin = timRepository.findById(utakmica.getIdDomacina());
+    if (domacin != nullptr) {
+        Igrac* igrac = domacin->pronadjiIgracaPoId(idIgraca);
+        if (igrac != nullptr) {
+            return igrac;
+        }
+    }
+
+    Tim* gost = timRepository.findById(utakmica.getIdGosta());
+    if (gost != nullptr) {
+        return gost->pronadjiIgracaPoId(idIgraca);
+    }
+
+    return nullptr;
+}
+
+int UtakmicaService::ukupanBrojEvidentiranihGolova(const Utakmica& utakmica) const {
+    return static_cast<int>(utakmica.getStrijelci().size());
 }

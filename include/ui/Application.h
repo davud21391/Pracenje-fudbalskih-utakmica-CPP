@@ -19,8 +19,11 @@ private:
     void dodajTim();
     void dodajIgracaUTim();
     void dodajUtakmicu();
+    void evidentirajStrijelca();
     void prikaziTimove() const;
     void prikaziIgraceTima() const;
     void prikaziUtakmice() const;
+    void prikaziListuStrijelaca() const;
+    bool ucitajDaNe(const char* prompt) const;
     int ucitajInt(const char* prompt) const;
 };
