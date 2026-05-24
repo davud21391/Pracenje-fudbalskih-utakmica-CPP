@@ -213,6 +213,11 @@ std::vector<const Utakmica*> UtakmicaService::pretraziPoKolu(int kolo) const {
     return rezultat;
 }
 
+void UtakmicaService::postaviSljedeceIdVrijednosti(int sljedecaUtakmicaId, int sljedeciStrijelacId) {
+    nextUtakmicaId = sljedecaUtakmicaId;
+    nextStrijelacId = sljedeciStrijelacId;
+}
+
 void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) const {
     if (timRepository.findById(idDomacina) == nullptr) {
         throw std::runtime_error("Domaci tim ne postoji.");

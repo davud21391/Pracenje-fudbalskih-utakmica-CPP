@@ -56,6 +56,11 @@ const std::vector<Igrac*>& TimService::vratiIgraceTima(int idTima) const {
     return tim->getIgraci();
 }
 
+void TimService::postaviSljedeceIdVrijednosti(int sljedeciTimId, int sljedeciIgracId) {
+    nextTimId = sljedeciTimId;
+    nextIgracId = sljedeciIgracId;
+}
+
 void TimService::validirajTim(const std::string& naziv, const std::string& grad, const std::string& trener, int godinaOsnivanja) const {
     if (naziv.empty()) {
         throw std::runtime_error("Naziv tima je obavezan.");

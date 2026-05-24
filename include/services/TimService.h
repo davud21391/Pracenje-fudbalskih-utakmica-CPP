@@ -14,6 +14,7 @@ public:
     Tim* pronadjiTim(int idTima) const;
     Igrac* pronadjiIgraca(int idIgraca) const;
     const std::vector<Igrac*>& vratiIgraceTima(int idTima) const;
+    void postaviSljedeceIdVrijednosti(int sljedeciTimId, int sljedeciIgracId);
 
 private:
     TimRepository& timRepository;

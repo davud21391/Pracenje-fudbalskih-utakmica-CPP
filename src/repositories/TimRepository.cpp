@@ -15,9 +15,7 @@ std::string toLowerCopy(const std::string& value) {
 }
 
 TimRepository::~TimRepository() {
-    for (Tim* tim : timovi) {
-        delete tim;
-    }
+    clear();
 }
 
 void TimRepository::add(Tim* tim) {
@@ -68,4 +66,13 @@ bool TimRepository::remove(int idTima) {
 
     delete tim;
     return true;
+}
+
+void TimRepository::clear() {
+    for (Tim* tim : timovi) {
+        delete tim;
+    }
+
+    timovi.clear();
+    timoviPoId.clear();
 }

@@ -19,6 +19,7 @@ public:
     Tim* findByName(const std::string& naziv) const;
     const std::vector<Tim*>& getAll() const;
     bool remove(int idTima);
+    void clear();
 
 private:
     std::vector<Tim*> timovi;

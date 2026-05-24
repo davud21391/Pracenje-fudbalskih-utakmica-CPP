@@ -7,7 +7,11 @@
 #include <vector>
 
 Application::Application()
-    : timRepository(), utakmicaRepository(), timService(timRepository), utakmicaService(utakmicaRepository, timRepository) {}
+    : timRepository(),
+      utakmicaRepository(),
+      timService(timRepository),
+      utakmicaService(utakmicaRepository, timRepository),
+      persistenceService(timRepository, utakmicaRepository, timService, utakmicaService) {}
 
 void Application::run() {
     bool running = true;
@@ -68,6 +72,12 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 9:
                 prikaziListuStrijelaca();
                 break;
+            case 10:
+                spremiPodatke();
+                break;
+            case 11:
+                ucitajPodatke();
+                break;
             case 12:
                 prikaziTimove();
                 break;
@@ -80,10 +90,6 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 0:
                 running = false;
                 std::cout << "Zatvaranje aplikacije.\n";
-                break;
-            case 10:
-            case 11:
-                std::cout << "Ova funkcionalnost je planirana za naredne faze implementacije.\n";
                 break;
             default:
                 std::cout << "Nepostojeca opcija. Pokusajte ponovo.\n";
@@ -227,6 +233,27 @@ void Application::evidentirajStrijelca() {
 
     const Strijelac strijelac = utakmicaService.dodajStrijelca(idUtakmice, idIgraca, minuta, autoGol);
     std::cout << "Gol evidentiran. ID strijelca: " << strijelac.getIdStrijelca() << "\n";
+}
+
+void Application::spremiPodatke() const {
+    persistenceService.spremiPodatke();
+    std::cout << "Podaci su uspjesno spremljeni u direktorij 'data'.\n";
+}
+
+void Application::ucitajPodatke() {
+    if (timService.vratiSveTimove().empty() && utakmicaService.vratiSveUtakmice().empty()) {
+        persistenceService.ucitajPodatke();
+        std::cout << "Podaci su uspjesno ucitani iz direktorija 'data'.\n";
+        return;
+    }
+
+    if (!ucitajDaNe("Ucitaj podatke i prepisi trenutno stanje? (d/n): ")) {
+        std::cout << "Ucitavanje podataka otkazano.\n";
+        return;
+    }
+
+    persistenceService.ucitajPodatke();
+    std::cout << "Podaci su uspjesno ucitani iz direktorija 'data'.\n";
 }
 
 void Application::prikaziTimove() const {
