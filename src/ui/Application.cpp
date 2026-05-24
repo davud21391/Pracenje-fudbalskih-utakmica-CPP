@@ -52,6 +52,9 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 5:
                 evidentirajStrijelca();
                 break;
+            case 7:
+                prikaziTabelu();
+                break;
             case 9:
                 prikaziListuStrijelaca();
                 break;
@@ -70,7 +73,6 @@ void Application::obradiIzbor(int izbor, bool& running) {
                 break;
             case 4:
             case 6:
-            case 7:
             case 8:
             case 10:
             case 11:
@@ -283,6 +285,33 @@ void Application::prikaziUtakmice() const {
         }
 
         std::cout
+                  << "\n";
+    }
+}
+
+void Application::prikaziTabelu() const {
+    const std::vector<StatistikaTima> tabela = utakmicaService.vratiTabelu();
+
+    if (tabela.empty()) {
+        std::cout << "Nema unesenih timova za prikaz tabele.\n";
+        return;
+    }
+
+    std::cout << "\n--- Tabela ---\n";
+    std::cout << "Poz | Tim | OU | P | N | I | DG | PG | GR | B\n";
+
+    int pozicija = 1;
+    for (const StatistikaTima& red : tabela) {
+        std::cout << pozicija++
+                  << ". | " << red.nazivTima
+                  << " | " << red.odigrane
+                  << " | " << red.pobjede
+                  << " | " << red.nerijesene
+                  << " | " << red.porazi
+                  << " | " << red.datiGolovi
+                  << " | " << red.primljeniGolovi
+                  << " | " << red.golRazlika
+                  << " | " << red.bodovi
                   << "\n";
     }
 }

@@ -14,6 +14,22 @@ bool statistikaPoredjenje(const StatistikaStrijelca& lijevo, const StatistikaStr
 
     return lijevo.punoIme < desno.punoIme;
 }
+
+bool tabelaPoredjenje(const StatistikaTima& lijevo, const StatistikaTima& desno) {
+    if (lijevo.bodovi != desno.bodovi) {
+        return lijevo.bodovi > desno.bodovi;
+    }
+
+    if (lijevo.golRazlika != desno.golRazlika) {
+        return lijevo.golRazlika > desno.golRazlika;
+    }
+
+    if (lijevo.datiGolovi != desno.datiGolovi) {
+        return lijevo.datiGolovi > desno.datiGolovi;
+    }
+
+    return lijevo.nazivTima < desno.nazivTima;
+}
 }
 
 UtakmicaService::UtakmicaService(UtakmicaRepository& utakmicaRepository, TimRepository& timRepository)
@@ -79,6 +95,68 @@ std::vector<StatistikaStrijelca> UtakmicaService::vratiListuStrijelaca() const {
 
     std::sort(rezultat.begin(), rezultat.end(), statistikaPoredjenje);
     return rezultat;
+}
+
+std::vector<StatistikaTima> UtakmicaService::vratiTabelu() const {
+    std::map<int, StatistikaTima> statistikaPoTimu;
+
+    for (const Tim* tim : timRepository.getAll()) {
+        statistikaPoTimu[tim->getIdTima()] = StatistikaTima{
+            tim->getIdTima(),
+            tim->getNaziv(),
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        };
+    }
+
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        auto domacinIt = statistikaPoTimu.find(utakmica->getIdDomacina());
+        auto gostIt = statistikaPoTimu.find(utakmica->getIdGosta());
+        if (domacinIt == statistikaPoTimu.end() || gostIt == statistikaPoTimu.end()) {
+            continue;
+        }
+
+        StatistikaTima& domacin = domacinIt->second;
+        StatistikaTima& gost = gostIt->second;
+
+        domacin.odigrane += 1;
+        gost.odigrane += 1;
+
+        domacin.datiGolovi += utakmica->getRezultatDomacin();
+        domacin.primljeniGolovi += utakmica->getRezultatGost();
+        gost.datiGolovi += utakmica->getRezultatGost();
+        gost.primljeniGolovi += utakmica->getRezultatDomacin();
+
+        if (utakmica->getRezultatDomacin() > utakmica->getRezultatGost()) {
+            domacin.pobjede += 1;
+            domacin.bodovi += 3;
+            gost.porazi += 1;
+        } else if (utakmica->getRezultatDomacin() < utakmica->getRezultatGost()) {
+            gost.pobjede += 1;
+            gost.bodovi += 3;
+            domacin.porazi += 1;
+        } else {
+            domacin.nerijesene += 1;
+            gost.nerijesene += 1;
+            domacin.bodovi += 1;
+            gost.bodovi += 1;
+        }
+    }
+
+    std::vector<StatistikaTima> tabela;
+    for (auto& [_, statistika] : statistikaPoTimu) {
+        statistika.golRazlika = statistika.datiGolovi - statistika.primljeniGolovi;
+        tabela.push_back(statistika);
+    }
+
+    std::sort(tabela.begin(), tabela.end(), tabelaPoredjenje);
+    return tabela;
 }
 
 void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) const {
