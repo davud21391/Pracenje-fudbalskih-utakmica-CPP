@@ -46,6 +46,11 @@
   },
   {
     "directory": "/Users/davud/Desktop/cpp",
+    "command": "clang++ -std=c++17 -Iinclude -c src/services/UtakmicaService.cpp",
+    "file": "/Users/davud/Desktop/cpp/src/services/UtakmicaService.cpp"
+  },
+  {
+    "directory": "/Users/davud/Desktop/cpp",
     "command": "clang++ -std=c++17 -Iinclude -c src/ui/Application.cpp",
     "file": "/Users/davud/Desktop/cpp/src/ui/Application.cpp"
   }
