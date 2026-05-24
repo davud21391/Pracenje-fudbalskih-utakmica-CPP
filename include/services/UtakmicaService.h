@@ -32,6 +32,7 @@ public:
 
     Utakmica* dodajUtakmicu(int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo);
     Strijelac dodajStrijelca(int idUtakmice, int idIgraca, int minuta, bool autoGol);
+    bool urediUtakmicu(int idUtakmice, int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo);
     bool obrisiUtakmicu(int idUtakmice);
     const std::vector<Utakmica*>& vratiSveUtakmice() const;
     Utakmica* pronadjiUtakmicu(int idUtakmice) const;
@@ -40,6 +41,8 @@ public:
     std::vector<const Utakmica*> vratiUtakmiceTima(int idTima) const;
     std::vector<const Utakmica*> pretraziPoDatumu(const std::string& datum) const;
     std::vector<const Utakmica*> pretraziPoKolu(int kolo) const;
+    std::vector<const Utakmica*> sortirajPoDatumu() const;
+    std::vector<const Utakmica*> sortirajPoKolu() const;
     void postaviSljedeceIdVrijednosti(int sljedecaUtakmicaId, int sljedeciStrijelacId);
 
 
@@ -53,6 +56,7 @@ private:
     void validirajStrijelca(const Utakmica& utakmica, int idIgraca, int minuta) const;
     std::string normalizujDatum(const std::string& datum) const;
     bool validanDatumFormat(const std::string& datum) const;
+    int vrijednostDatumaZaSort(const std::string& datum) const;
     Igrac* pronadjiIgracaUMecu(const Utakmica& utakmica, int idIgraca) const;
     int ukupanBrojEvidentiranihGolova(const Utakmica& utakmica) const;
 };

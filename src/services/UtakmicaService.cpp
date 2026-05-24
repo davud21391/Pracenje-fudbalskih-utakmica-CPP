@@ -30,6 +30,14 @@ bool tabelaPoredjenje(const StatistikaTima& lijevo, const StatistikaTima& desno)
 
     return lijevo.nazivTima < desno.nazivTima;
 }
+
+bool koloPoredjenje(const Utakmica* lijevo, const Utakmica* desno) {
+    if (lijevo->getKolo() != desno->getKolo()) {
+        return lijevo->getKolo() < desno->getKolo();
+    }
+
+    return lijevo->getIdUtakmice() < desno->getIdUtakmice();
+}
 }
 
 UtakmicaService::UtakmicaService(UtakmicaRepository& utakmicaRepository, TimRepository& timRepository)
@@ -63,6 +71,33 @@ Strijelac UtakmicaService::dodajStrijelca(int idUtakmice, int idIgraca, int minu
     const Strijelac strijelac(nextStrijelacId++, idUtakmice, idIgraca, minuta, autoGol);
     utakmica->dodajStrijelca(strijelac);
     return strijelac;
+}
+
+bool UtakmicaService::urediUtakmicu(int idUtakmice, int idDomacina, int idGosta, const std::string& datum, int rezultatDomacin, int rezultatGost, int kolo) {
+    Utakmica* utakmica = pronadjiUtakmicu(idUtakmice);
+    if (utakmica == nullptr) {
+        return false;
+    }
+
+    const std::string normalizovanDatum = normalizujDatum(datum);
+    validirajUtakmicu(idDomacina, idGosta, normalizovanDatum, rezultatDomacin, rezultatGost, kolo);
+
+    const bool promijenjeniTimovi = utakmica->getIdDomacina() != idDomacina || utakmica->getIdGosta() != idGosta;
+    const bool promijenjenRezultat = utakmica->getRezultatDomacin() != rezultatDomacin || utakmica->getRezultatGost() != rezultatGost;
+
+    utakmica->setIdDomacina(idDomacina);
+    utakmica->setIdGosta(idGosta);
+    utakmica->setDatum(normalizovanDatum);
+    utakmica->setRezultatDomacin(rezultatDomacin);
+    utakmica->setRezultatGost(rezultatGost);
+    utakmica->setKolo(kolo);
+
+    if (promijenjeniTimovi || promijenjenRezultat) {
+        utakmica->obrisiStrijelce();
+        return true;
+    }
+
+    return false;
 }
 
 bool UtakmicaService::obrisiUtakmicu(int idUtakmice) {
@@ -213,6 +248,36 @@ std::vector<const Utakmica*> UtakmicaService::pretraziPoKolu(int kolo) const {
     return rezultat;
 }
 
+std::vector<const Utakmica*> UtakmicaService::sortirajPoDatumu() const {
+    std::vector<const Utakmica*> rezultat;
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        rezultat.push_back(utakmica);
+    }
+
+    std::sort(rezultat.begin(), rezultat.end(), [this](const Utakmica* lijevo, const Utakmica* desno) {
+        const int lijeviDatum = vrijednostDatumaZaSort(lijevo->getDatum());
+        const int desniDatum = vrijednostDatumaZaSort(desno->getDatum());
+
+        if (lijeviDatum != desniDatum) {
+            return lijeviDatum < desniDatum;
+        }
+
+        return lijevo->getIdUtakmice() < desno->getIdUtakmice();
+    });
+
+    return rezultat;
+}
+
+std::vector<const Utakmica*> UtakmicaService::sortirajPoKolu() const {
+    std::vector<const Utakmica*> rezultat;
+    for (const Utakmica* utakmica : utakmicaRepository.getAll()) {
+        rezultat.push_back(utakmica);
+    }
+
+    std::sort(rezultat.begin(), rezultat.end(), koloPoredjenje);
+    return rezultat;
+}
+
 void UtakmicaService::postaviSljedeceIdVrijednosti(int sljedecaUtakmicaId, int sljedeciStrijelacId) {
     nextUtakmicaId = sljedecaUtakmicaId;
     nextStrijelacId = sljedeciStrijelacId;
@@ -314,6 +379,15 @@ bool UtakmicaService::validanDatumFormat(const std::string& datum) const {
     }
 
     return true;
+}
+
+int UtakmicaService::vrijednostDatumaZaSort(const std::string& datum) const {
+    const std::string normalizovanDatum = normalizujDatum(datum);
+    const int dan = std::stoi(normalizovanDatum.substr(0, 2));
+    const int mjesec = std::stoi(normalizovanDatum.substr(3, 2));
+    const int godina = std::stoi(normalizovanDatum.substr(6, 4));
+
+    return godina * 10000 + mjesec * 100 + dan;
 }
 
 Igrac* UtakmicaService::pronadjiIgracaUMecu(const Utakmica& utakmica, int idIgraca) const {
