@@ -6,7 +6,7 @@
 #include <string>
 
 Application::Application()
-    : timRepository(), timService(timRepository) {}
+    : timRepository(), utakmicaRepository(), timService(timRepository), utakmicaService(utakmicaRepository, timRepository) {}
 
 void Application::run() {
     bool running = true;
@@ -22,7 +22,7 @@ void Application::prikaziMeni() const {
     std::cout << "\n=== Pracenje rezultata fudbalskih utakmica ===\n";
     std::cout << "1. Dodaj tim\n";
     std::cout << "2. Dodaj igraca timu\n";
-    std::cout << "3. Uredi podatke o utakmici\n";
+    std::cout << "3. Dodaj utakmicu\n";
     std::cout << "4. Obrisi utakmicu\n";
     std::cout << "5. Evidentiraj strijelce\n";
     std::cout << "6. Pretraga utakmica\n";
@@ -33,6 +33,7 @@ void Application::prikaziMeni() const {
     std::cout << "11. Ucitaj podatke iz datoteke\n";
     std::cout << "12. Prikazi timove\n";
     std::cout << "13. Prikazi igrace tima\n";
+    std::cout << "14. Prikazi utakmice\n";
     std::cout << "0. Izlaz\n";
 }
 
@@ -45,17 +46,22 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 2:
                 dodajIgracaUTim();
                 break;
+            case 3:
+                dodajUtakmicu();
+                break;
             case 12:
                 prikaziTimove();
                 break;
             case 13:
                 prikaziIgraceTima();
                 break;
+            case 14:
+                prikaziUtakmice();
+                break;
             case 0:
                 running = false;
                 std::cout << "Zatvaranje aplikacije.\n";
                 break;
-            case 3:
             case 4:
             case 5:
             case 6:
@@ -122,6 +128,27 @@ void Application::dodajIgracaUTim() {
     std::cout << "Igrac uspjesno dodat. ID igraca: " << igrac->getIdIgraca() << "\n";
 }
 
+void Application::dodajUtakmicu() {
+    if (timService.vratiSveTimove().size() < 2) {
+        std::cout << "Morate imati najmanje dva tima za unos utakmice.\n";
+        return;
+    }
+
+    std::string datum;
+    const int idDomacina = ucitajInt("Unesite ID domaceg tima: ");
+    const int idGosta = ucitajInt("Unesite ID gostujuceg tima: ");
+
+    std::cout << "Unesite datum utakmice (dd.mm.gggg): ";
+    std::getline(std::cin >> std::ws, datum);
+
+    const int rezultatDomacin = ucitajInt("Unesite broj golova domacina: ");
+    const int rezultatGost = ucitajInt("Unesite broj golova gosta: ");
+    const int kolo = ucitajInt("Unesite kolo: ");
+
+    Utakmica* utakmica = utakmicaService.dodajUtakmicu(idDomacina, idGosta, datum, rezultatDomacin, rezultatGost, kolo);
+    std::cout << "Utakmica uspjesno dodata. ID utakmice: " << utakmica->getIdUtakmice() << "\n";
+}
+
 void Application::prikaziTimove() const {
     const std::vector<Tim*>& timovi = timService.vratiSveTimove();
 
@@ -167,6 +194,30 @@ void Application::prikaziIgraceTima() const {
                   << " | Ime i prezime: " << igrac->getPunoIme()
                   << " | Broj dresa: " << igrac->getBrojDresa()
                   << " | Pozicija: " << igrac->getPozicija()
+                  << "\n";
+    }
+}
+
+void Application::prikaziUtakmice() const {
+    const std::vector<Utakmica*>& utakmice = utakmicaService.vratiSveUtakmice();
+
+    if (utakmice.empty()) {
+        std::cout << "Nema unesenih utakmica.\n";
+        return;
+    }
+
+    std::cout << "\n--- Lista utakmica ---\n";
+    for (const Utakmica* utakmica : utakmice) {
+        const Tim* domacin = timService.pronadjiTim(utakmica->getIdDomacina());
+        const Tim* gost = timService.pronadjiTim(utakmica->getIdGosta());
+
+        std::cout << "ID: " << utakmica->getIdUtakmice()
+                  << " | Kolo: " << utakmica->getKolo()
+                  << " | Datum: " << utakmica->getDatum()
+                  << " | " << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
+                  << " " << utakmica->getRezultatDomacin()
+                  << ":" << utakmica->getRezultatGost() << " "
+                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost")
                   << "\n";
     }
 }
