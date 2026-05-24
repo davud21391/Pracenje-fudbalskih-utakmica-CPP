@@ -23,6 +23,7 @@ private:
     void prikaziTimove() const;
     void prikaziIgraceTima() const;
     void prikaziTabelu() const;
+    void prikaziUtakmiceTima() const;
     void prikaziUtakmice() const;
     void prikaziListuStrijelaca() const;
     bool ucitajDaNe(const char* prompt) const;
