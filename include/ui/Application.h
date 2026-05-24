@@ -24,8 +24,10 @@ private:
     void prikaziIgraceTima() const;
     void prikaziTabelu() const;
     void prikaziUtakmiceTima() const;
+    void pretraziUtakmice() const;
     void prikaziUtakmice() const;
     void prikaziListuStrijelaca() const;
+    void ispisiListuUtakmica(const std::vector<const Utakmica*>& utakmice, const std::string& naslov) const;
     bool ucitajDaNe(const char* prompt) const;
     int ucitajInt(const char* prompt) const;
 };

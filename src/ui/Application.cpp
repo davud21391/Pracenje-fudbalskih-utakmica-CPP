@@ -4,6 +4,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 Application::Application()
     : timRepository(), utakmicaRepository(), timService(timRepository), utakmicaService(utakmicaRepository, timRepository) {}
@@ -52,6 +53,9 @@ void Application::obradiIzbor(int izbor, bool& running) {
             case 5:
                 evidentirajStrijelca();
                 break;
+            case 6:
+                pretraziUtakmice();
+                break;
             case 7:
                 prikaziTabelu();
                 break;
@@ -75,7 +79,6 @@ void Application::obradiIzbor(int izbor, bool& running) {
                 std::cout << "Zatvaranje aplikacije.\n";
                 break;
             case 4:
-            case 6:
             case 10:
             case 11:
                 std::cout << "Ova funkcionalnost je planirana za naredne faze implementacije.\n";
@@ -253,42 +256,12 @@ void Application::prikaziUtakmice() const {
         return;
     }
 
-    std::cout << "\n--- Lista utakmica ---\n";
+    std::vector<const Utakmica*> prikaz;
     for (const Utakmica* utakmica : utakmice) {
-        const Tim* domacin = timService.pronadjiTim(utakmica->getIdDomacina());
-        const Tim* gost = timService.pronadjiTim(utakmica->getIdGosta());
-
-        std::cout << "ID: " << utakmica->getIdUtakmice()
-                  << " | Kolo: " << utakmica->getKolo()
-                  << " | Datum: " << utakmica->getDatum()
-                  << " | " << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
-                  << " " << utakmica->getRezultatDomacin()
-                  << ":" << utakmica->getRezultatGost() << " "
-                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost");
-
-        if (!utakmica->getStrijelci().empty()) {
-            std::cout << " | Strijelci: ";
-            bool prvi = true;
-            for (const Strijelac& strijelac : utakmica->getStrijelci()) {
-                Igrac* igrac = timService.pronadjiIgraca(strijelac.getIdIgraca());
-                if (!prvi) {
-                    std::cout << ", ";
-                }
-
-                std::cout << (igrac != nullptr ? igrac->getPunoIme() : "Nepoznat igrac")
-                          << " (" << strijelac.getMinuta() << "')";
-
-                if (strijelac.isAutoGol()) {
-                    std::cout << " [AG]";
-                }
-
-                prvi = false;
-            }
-        }
-
-        std::cout
-                  << "\n";
+        prikaz.push_back(utakmica);
     }
+
+    ispisiListuUtakmica(prikaz, "Lista utakmica");
 }
 
 void Application::prikaziTabelu() const {
@@ -337,7 +310,73 @@ void Application::prikaziUtakmiceTima() const {
         return;
     }
 
-    std::cout << "\n--- Utakmice tima: " << trazeniTim->getNaziv() << " ---\n";
+    ispisiListuUtakmica(utakmice, std::string("Utakmice tima: ") + trazeniTim->getNaziv());
+}
+
+void Application::pretraziUtakmice() const {
+    if (utakmicaService.vratiSveUtakmice().empty()) {
+        std::cout << "Nema unesenih utakmica za pretragu.\n";
+        return;
+    }
+
+    std::cout << "\nPretraga utakmica:\n";
+    std::cout << "1. Po timu\n";
+    std::cout << "2. Po datumu\n";
+    std::cout << "3. Po kolu\n";
+
+    const int kriterij = ucitajInt("Odaberite kriterij pretrage: ");
+
+    switch (kriterij) {
+        case 1: {
+            const int idTima = ucitajInt("Unesite ID tima: ");
+            const Tim* tim = timService.pronadjiTim(idTima);
+            if (tim == nullptr) {
+                std::cout << "Tim sa zadanim ID-em ne postoji.\n";
+                return;
+            }
+
+            const std::vector<const Utakmica*> rezultat = utakmicaService.vratiUtakmiceTima(idTima);
+            if (rezultat.empty()) {
+                std::cout << "Nema utakmica za trazeni tim.\n";
+                return;
+            }
+
+            ispisiListuUtakmica(rezultat, std::string("Pretraga po timu: ") + tim->getNaziv());
+            break;
+        }
+        case 2: {
+            std::string datum;
+            std::cout << "Unesite datum (dd.mm.gggg): ";
+            std::getline(std::cin >> std::ws, datum);
+
+            const std::vector<const Utakmica*> rezultat = utakmicaService.pretraziPoDatumu(datum);
+            if (rezultat.empty()) {
+                std::cout << "Nema utakmica za trazeni datum.\n";
+                return;
+            }
+
+            ispisiListuUtakmica(rezultat, std::string("Pretraga po datumu: ") + datum);
+            break;
+        }
+        case 3: {
+            const int kolo = ucitajInt("Unesite kolo: ");
+            const std::vector<const Utakmica*> rezultat = utakmicaService.pretraziPoKolu(kolo);
+            if (rezultat.empty()) {
+                std::cout << "Nema utakmica za trazeno kolo.\n";
+                return;
+            }
+
+            ispisiListuUtakmica(rezultat, std::string("Pretraga po kolu: ") + std::to_string(kolo));
+            break;
+        }
+        default:
+            std::cout << "Nepostojeci kriterij pretrage.\n";
+            break;
+    }
+}
+
+void Application::ispisiListuUtakmica(const std::vector<const Utakmica*>& utakmice, const std::string& naslov) const {
+    std::cout << "\n--- " << naslov << " ---\n";
     for (const Utakmica* utakmica : utakmice) {
         const Tim* domacin = timService.pronadjiTim(utakmica->getIdDomacina());
         const Tim* gost = timService.pronadjiTim(utakmica->getIdGosta());
@@ -348,8 +387,29 @@ void Application::prikaziUtakmiceTima() const {
                   << " | " << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
                   << " " << utakmica->getRezultatDomacin()
                   << ":" << utakmica->getRezultatGost() << " "
-                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost")
-                  << "\n";
+                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost");
+
+        if (!utakmica->getStrijelci().empty()) {
+            std::cout << " | Strijelci: ";
+            bool prvi = true;
+            for (const Strijelac& strijelac : utakmica->getStrijelci()) {
+                Igrac* igrac = timService.pronadjiIgraca(strijelac.getIdIgraca());
+                if (!prvi) {
+                    std::cout << ", ";
+                }
+
+                std::cout << (igrac != nullptr ? igrac->getPunoIme() : "Nepoznat igrac")
+                          << " (" << strijelac.getMinuta() << "')";
+
+                if (strijelac.isAutoGol()) {
+                    std::cout << " [AG]";
+                }
+
+                prvi = false;
+            }
+        }
+
+        std::cout << "\n";
     }
 }
 
