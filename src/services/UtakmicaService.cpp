@@ -38,6 +38,34 @@ bool koloPoredjenje(const Utakmica* lijevo, const Utakmica* desno) {
 
     return lijevo->getIdUtakmice() < desno->getIdUtakmice();
 }
+
+bool prijestupnaGodina(int godina) {
+    return (godina % 4 == 0 && godina % 100 != 0) || godina % 400 == 0;
+}
+
+int brojDanaUMjesecu(int mjesec, int godina) {
+    switch (mjesec) {
+        case 2:
+            return prijestupnaGodina(godina) ? 29 : 28;
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            return 30;
+        default:
+            return 31;
+    }
+}
+
+bool sadrziSamoCifre(const std::string& tekst) {
+    return !tekst.empty() && std::all_of(tekst.begin(), tekst.end(), [](unsigned char znak) {
+        return std::isdigit(znak);
+    });
+}
+
+std::string formatirajDvocifreno(int vrijednost) {
+    return vrijednost < 10 ? "0" + std::to_string(vrijednost) : std::to_string(vrijednost);
+}
 }
 
 UtakmicaService::UtakmicaService(UtakmicaRepository& utakmicaRepository, TimRepository& timRepository)
@@ -220,7 +248,7 @@ std::vector<const Utakmica*> UtakmicaService::vratiUtakmiceTima(int idTima) cons
 std::vector<const Utakmica*> UtakmicaService::pretraziPoDatumu(const std::string& datum) const {
     const std::string normalizovanDatum = normalizujDatum(datum);
     if (!validanDatumFormat(normalizovanDatum)) {
-        throw std::runtime_error("Datum mora biti u formatu dd.mm.gggg.");
+        throw std::runtime_error("Datum nije validan. Koristite format dd.mm.gggg i stvaran kalendarski datum.");
     }
 
     std::vector<const Utakmica*> rezultat;
@@ -297,7 +325,7 @@ void UtakmicaService::validirajUtakmicu(int idDomacina, int idGosta, const std::
     }
 
     if (!validanDatumFormat(datum)) {
-        throw std::runtime_error("Datum mora biti u formatu dd.mm.gggg.");
+        throw std::runtime_error("Datum nije validan. Koristite format dd.mm.gggg i stvaran kalendarski datum.");
     }
 
     if (rezultatDomacin < 0 || rezultatGost < 0) {
@@ -339,7 +367,23 @@ std::string UtakmicaService::normalizujDatum(const std::string& datum) const {
         rezultat.pop_back();
     }
 
-    return rezultat;
+    const std::size_t prvaTacka = rezultat.find('.');
+    const std::size_t drugaTacka = prvaTacka == std::string::npos ? std::string::npos : rezultat.find('.', prvaTacka + 1);
+    if (prvaTacka == std::string::npos || drugaTacka == std::string::npos || rezultat.find('.', drugaTacka + 1) != std::string::npos) {
+        return rezultat;
+    }
+
+    const std::string danTekst = rezultat.substr(0, prvaTacka);
+    const std::string mjesecTekst = rezultat.substr(prvaTacka + 1, drugaTacka - prvaTacka - 1);
+    const std::string godinaTekst = rezultat.substr(drugaTacka + 1);
+
+    if (!sadrziSamoCifre(danTekst) || !sadrziSamoCifre(mjesecTekst) || !sadrziSamoCifre(godinaTekst) || godinaTekst.size() != 4) {
+        return rezultat;
+    }
+
+    const int dan = std::stoi(danTekst);
+    const int mjesec = std::stoi(mjesecTekst);
+    return formatirajDvocifreno(dan) + "." + formatirajDvocifreno(mjesec) + "." + godinaTekst;
 }
 
 bool UtakmicaService::validanDatumFormat(const std::string& datum) const {
@@ -374,7 +418,7 @@ bool UtakmicaService::validanDatumFormat(const std::string& datum) const {
         return false;
     }
 
-    if (dan < 1 || dan > 31) {
+    if (dan < 1 || dan > brojDanaUMjesecu(mjesec, godina)) {
         return false;
     }
 
