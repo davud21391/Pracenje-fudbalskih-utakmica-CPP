@@ -18,6 +18,9 @@ private:
 
     void prikaziMeni() const;
     void obradiIzbor(int izbor, bool& running);
+    void meniTimovi();
+    void meniStatistika() const;
+    void meniPodaci();
     void dodajTim();
     void dodajIgracaUTim();
     void meniUtakmice();

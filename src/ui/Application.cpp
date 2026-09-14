@@ -25,20 +25,10 @@ void Application::run() {
 
 void Application::prikaziMeni() const {
     std::cout << "\n=== Pracenje rezultata fudbalskih utakmica ===\n";
-    std::cout << "1. Dodaj tim\n";
-    std::cout << "2. Dodaj igraca timu\n";
-    std::cout << "3. Upravljanje utakmicama\n";
-    std::cout << "4. Obrisi utakmicu\n";
-    std::cout << "5. Evidentiraj strijelce\n";
-    std::cout << "6. Pretraga utakmica\n";
-    std::cout << "7. Prikaz tabele\n";
-    std::cout << "8. Pregled utakmica tima\n";
-    std::cout << "9. Lista strijelaca\n";
-    std::cout << "10. Spremi podatke u datoteku\n";
-    std::cout << "11. Ucitaj podatke iz datoteke\n";
-    std::cout << "12. Prikazi timove\n";
-    std::cout << "13. Prikazi igrace tima\n";
-    std::cout << "14. Prikazi utakmice\n";
+    std::cout << "1. Timovi\n";
+    std::cout << "2. Utakmice\n";
+    std::cout << "3. Statistika\n";
+    std::cout << "4. Podaci\n";
     std::cout << "0. Izlaz\n";
 }
 
@@ -46,46 +36,16 @@ void Application::obradiIzbor(int izbor, bool& running) {
     try {
         switch (izbor) {
             case 1:
-                dodajTim();
+                meniTimovi();
                 break;
             case 2:
-                dodajIgracaUTim();
-                break;
-            case 3:
                 meniUtakmice();
                 break;
+            case 3:
+                meniStatistika();
+                break;
             case 4:
-                obrisiUtakmicu();
-                break;
-            case 5:
-                evidentirajStrijelca();
-                break;
-            case 6:
-                pretraziUtakmice();
-                break;
-            case 7:
-                prikaziTabelu();
-                break;
-            case 8:
-                prikaziUtakmiceTima();
-                break;
-            case 9:
-                prikaziListuStrijelaca();
-                break;
-            case 10:
-                spremiPodatke();
-                break;
-            case 11:
-                ucitajPodatke();
-                break;
-            case 12:
-                prikaziTimove();
-                break;
-            case 13:
-                prikaziIgraceTima();
-                break;
-            case 14:
-                prikaziUtakmice();
+                meniPodaci();
                 break;
             case 0:
                 running = false;
@@ -100,26 +60,143 @@ void Application::obradiIzbor(int izbor, bool& running) {
     }
 }
 
-void Application::meniUtakmice() {
-    std::cout << "\nUpravljanje utakmicama:\n";
-    std::cout << "1. Dodaj utakmicu\n";
-    std::cout << "2. Uredi utakmicu\n";
-    std::cout << "3. Sortiraj utakmice\n";
+void Application::meniTimovi() {
+    bool nazad = false;
 
-    const int izbor = ucitajInt("Odaberite opciju: ");
-    switch (izbor) {
-        case 1:
-            dodajUtakmicu();
-            break;
-        case 2:
-            urediUtakmicu();
-            break;
-        case 3:
-            sortirajUtakmice();
-            break;
-        default:
-            std::cout << "Nepostojeca opcija za upravljanje utakmicama.\n";
-            break;
+    while (!nazad) {
+        std::cout << "\n--- Timovi ---\n";
+        std::cout << "1. Dodaj tim\n";
+        std::cout << "2. Dodaj igraca timu\n";
+        std::cout << "3. Prikazi timove\n";
+        std::cout << "4. Prikazi igrace tima\n";
+        std::cout << "0. Nazad\n";
+
+        const int izbor = ucitajInt("Odaberite opciju: ");
+        switch (izbor) {
+            case 1:
+                dodajTim();
+                break;
+            case 2:
+                dodajIgracaUTim();
+                break;
+            case 3:
+                prikaziTimove();
+                break;
+            case 4:
+                prikaziIgraceTima();
+                break;
+            case 0:
+                nazad = true;
+                break;
+            default:
+                std::cout << "Nepostojeca opcija za timove.\n";
+                break;
+        }
+    }
+}
+
+void Application::meniUtakmice() {
+    bool nazad = false;
+
+    while (!nazad) {
+        std::cout << "\n--- Utakmice ---\n";
+        std::cout << "1. Dodaj utakmicu\n";
+        std::cout << "2. Uredi utakmicu\n";
+        std::cout << "3. Obrisi utakmicu\n";
+        std::cout << "4. Evidentiraj strijelce\n";
+        std::cout << "5. Pretraga utakmica\n";
+        std::cout << "6. Pregled utakmica tima\n";
+        std::cout << "7. Prikazi utakmice\n";
+        std::cout << "8. Sortiraj utakmice\n";
+        std::cout << "0. Nazad\n";
+
+        const int izbor = ucitajInt("Odaberite opciju: ");
+        switch (izbor) {
+            case 1:
+                dodajUtakmicu();
+                break;
+            case 2:
+                urediUtakmicu();
+                break;
+            case 3:
+                obrisiUtakmicu();
+                break;
+            case 4:
+                evidentirajStrijelca();
+                break;
+            case 5:
+                pretraziUtakmice();
+                break;
+            case 6:
+                prikaziUtakmiceTima();
+                break;
+            case 7:
+                prikaziUtakmice();
+                break;
+            case 8:
+                sortirajUtakmice();
+                break;
+            case 0:
+                nazad = true;
+                break;
+            default:
+                std::cout << "Nepostojeca opcija za utakmice.\n";
+                break;
+        }
+    }
+}
+
+void Application::meniStatistika() const {
+    bool nazad = false;
+
+    while (!nazad) {
+        std::cout << "\n--- Statistika ---\n";
+        std::cout << "1. Prikaz tabele\n";
+        std::cout << "2. Lista strijelaca\n";
+        std::cout << "0. Nazad\n";
+
+        const int izbor = ucitajInt("Odaberite opciju: ");
+        switch (izbor) {
+            case 1:
+                prikaziTabelu();
+                break;
+            case 2:
+                prikaziListuStrijelaca();
+                break;
+            case 0:
+                nazad = true;
+                break;
+            default:
+                std::cout << "Nepostojeca opcija za statistiku.\n";
+                break;
+        }
+    }
+}
+
+void Application::meniPodaci() {
+    bool nazad = false;
+
+    while (!nazad) {
+        std::cout << "\n--- Podaci ---\n";
+        std::cout << "1. Spremi podatke u datoteku\n";
+        std::cout << "2. Ucitaj podatke iz datoteke\n";
+        std::cout << "0. Nazad\n";
+
+        const int izbor = ucitajInt("Odaberite opciju: ");
+        switch (izbor) {
+            case 1:
+                spremiPodatke();
+                break;
+            case 2:
+                ucitajPodatke();
+                break;
+            case 0:
+                nazad = true;
+                break;
+            default:
+                std::cout << "Nepostojeca opcija za podatke.\n";
+                break;
+        }
     }
 }
 
