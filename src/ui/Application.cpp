@@ -66,9 +66,11 @@ void Application::meniTimovi() {
     while (!nazad) {
         std::cout << "\n--- Timovi ---\n";
         std::cout << "1. Dodaj tim\n";
-        std::cout << "2. Dodaj igraca timu\n";
-        std::cout << "3. Prikazi timove\n";
-        std::cout << "4. Prikazi igrace tima\n";
+        std::cout << "2. Uredi tim\n";
+        std::cout << "3. Obrisi tim\n";
+        std::cout << "4. Dodaj igraca timu\n";
+        std::cout << "5. Prikazi timove\n";
+        std::cout << "6. Prikazi igrace tima\n";
         std::cout << "0. Nazad\n";
 
         const int izbor = ucitajInt("Odaberite opciju: ");
@@ -77,12 +79,18 @@ void Application::meniTimovi() {
                 dodajTim();
                 break;
             case 2:
-                dodajIgracaUTim();
+                urediTim();
                 break;
             case 3:
-                prikaziTimove();
+                obrisiTim();
                 break;
             case 4:
+                dodajIgracaUTim();
+                break;
+            case 5:
+                prikaziTimove();
+                break;
+            case 6:
                 prikaziIgraceTima();
                 break;
             case 0:
@@ -218,6 +226,81 @@ void Application::dodajTim() {
     Tim* tim = timService.dodajTim(naziv, grad, trener, godinaOsnivanja);
 
     std::cout << "Tim uspjesno dodat. ID: " << tim->getIdTima() << "\n";
+}
+
+void Application::urediTim() {
+    if (timService.vratiSveTimove().empty()) {
+        std::cout << "Nema unesenih timova za uredjivanje.\n";
+        return;
+    }
+
+    prikaziTimove();
+
+    const int idTima = ucitajInt("Unesite ID tima za uredjivanje: ");
+    Tim* postojeciTim = timService.pronadjiTim(idTima);
+    if (postojeciTim == nullptr) {
+        std::cout << "Tim sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    std::string naziv;
+    std::string grad;
+    std::string trener;
+
+    std::cout << "Trenutni naziv: " << postojeciTim->getNaziv() << "\n";
+    std::cout << "Unesite novi naziv tima: ";
+    std::getline(std::cin >> std::ws, naziv);
+
+    std::cout << "Trenutni grad: " << postojeciTim->getGrad() << "\n";
+    std::cout << "Unesite novi grad: ";
+    std::getline(std::cin, grad);
+
+    std::cout << "Trenutni trener: " << postojeciTim->getTrener() << "\n";
+    std::cout << "Unesite novo ime trenera: ";
+    std::getline(std::cin, trener);
+
+    std::cout << "Trenutna godina osnivanja: " << postojeciTim->getGodinaOsnivanja() << "\n";
+    const int godinaOsnivanja = ucitajInt("Unesite novu godinu osnivanja: ");
+
+    if (timService.urediTim(idTima, naziv, grad, trener, godinaOsnivanja)) {
+        std::cout << "Tim uspjesno uredjen.\n";
+        return;
+    }
+
+    std::cout << "Uredjivanje tima nije uspjelo.\n";
+}
+
+void Application::obrisiTim() {
+    if (timService.vratiSveTimove().empty()) {
+        std::cout << "Nema unesenih timova za brisanje.\n";
+        return;
+    }
+
+    prikaziTimove();
+
+    const int idTima = ucitajInt("Unesite ID tima za brisanje: ");
+    Tim* tim = timService.pronadjiTim(idTima);
+    if (tim == nullptr) {
+        std::cout << "Tim sa zadanim ID-em ne postoji.\n";
+        return;
+    }
+
+    if (!utakmicaService.vratiUtakmiceTima(idTima).empty()) {
+        std::cout << "Tim se ne moze obrisati jer ima evidentirane utakmice.\n";
+        return;
+    }
+
+    if (!ucitajDaNe("Potvrdite brisanje tima? (d/n): ")) {
+        std::cout << "Brisanje tima otkazano.\n";
+        return;
+    }
+
+    if (timService.obrisiTim(idTima)) {
+        std::cout << "Tim uspjesno obrisan.\n";
+        return;
+    }
+
+    std::cout << "Brisanje tima nije uspjelo.\n";
 }
 
 void Application::dodajIgracaUTim() {

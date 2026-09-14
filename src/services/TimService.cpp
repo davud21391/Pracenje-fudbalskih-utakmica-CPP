@@ -13,6 +13,25 @@ Tim* TimService::dodajTim(const std::string& naziv, const std::string& grad, con
     return tim;
 }
 
+bool TimService::urediTim(int idTima, const std::string& naziv, const std::string& grad, const std::string& trener, int godinaOsnivanja) {
+    Tim* tim = pronadjiTim(idTima);
+    if (tim == nullptr) {
+        return false;
+    }
+
+    validirajIzmjenuTima(idTima, naziv, grad, trener, godinaOsnivanja);
+
+    tim->setNaziv(naziv);
+    tim->setGrad(grad);
+    tim->setTrener(trener);
+    tim->setGodinaOsnivanja(godinaOsnivanja);
+    return true;
+}
+
+bool TimService::obrisiTim(int idTima) {
+    return timRepository.remove(idTima);
+}
+
 Igrac* TimService::dodajIgracaUTim(int idTima, const std::string& ime, const std::string& prezime, int brojDresa, const std::string& pozicija) {
     Tim* tim = pronadjiTim(idTima);
     if (tim == nullptr) {
@@ -79,6 +98,29 @@ void TimService::validirajTim(const std::string& naziv, const std::string& grad,
     }
 
     if (timRepository.findByName(naziv) != nullptr) {
+        throw std::runtime_error("Tim sa tim nazivom vec postoji.");
+    }
+}
+
+void TimService::validirajIzmjenuTima(int idTima, const std::string& naziv, const std::string& grad, const std::string& trener, int godinaOsnivanja) const {
+    if (naziv.empty()) {
+        throw std::runtime_error("Naziv tima je obavezan.");
+    }
+
+    if (grad.empty()) {
+        throw std::runtime_error("Grad je obavezan.");
+    }
+
+    if (trener.empty()) {
+        throw std::runtime_error("Trener je obavezan.");
+    }
+
+    if (godinaOsnivanja < 1800 || godinaOsnivanja > 2100) {
+        throw std::runtime_error("Godina osnivanja nije validna.");
+    }
+
+    Tim* timSaIstimNazivom = timRepository.findByName(naziv);
+    if (timSaIstimNazivom != nullptr && timSaIstimNazivom->getIdTima() != idTima) {
         throw std::runtime_error("Tim sa tim nazivom vec postoji.");
     }
 }

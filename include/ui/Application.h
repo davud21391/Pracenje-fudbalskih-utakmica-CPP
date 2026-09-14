@@ -22,6 +22,8 @@ private:
     void meniStatistika() const;
     void meniPodaci();
     void dodajTim();
+    void urediTim();
+    void obrisiTim();
     void dodajIgracaUTim();
     void meniUtakmice();
     void dodajUtakmicu();
