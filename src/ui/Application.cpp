@@ -4,6 +4,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 Application::Application()
@@ -317,7 +318,12 @@ void Application::pretraziTimove() const {
     std::cout << "Unesite naziv ili grad tima za pretragu: ";
     std::getline(std::cin >> std::ws, pojam);
 
-    const std::vector<const Tim*> rezultat = timService.pretraziTimove(pojam);
+    std::vector<const Tim*> rezultat;
+    std::thread pretragaThread([this, &pojam, &rezultat]() {
+        rezultat = timService.pretraziTimove(pojam);
+    });
+    pretragaThread.join();
+
     if (rezultat.empty()) {
         std::cout << "Nema timova koji odgovaraju pretrazi.\n";
         return;
