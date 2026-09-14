@@ -68,9 +68,10 @@ void Application::meniTimovi() {
         std::cout << "1. Dodaj tim\n";
         std::cout << "2. Uredi tim\n";
         std::cout << "3. Obrisi tim\n";
-        std::cout << "4. Dodaj igraca timu\n";
-        std::cout << "5. Prikazi timove\n";
-        std::cout << "6. Prikazi igrace tima\n";
+        std::cout << "4. Pretrazi timove\n";
+        std::cout << "5. Dodaj igraca timu\n";
+        std::cout << "6. Prikazi timove\n";
+        std::cout << "7. Prikazi igrace tima\n";
         std::cout << "0. Nazad\n";
 
         const int izbor = ucitajInt("Odaberite opciju: ");
@@ -85,12 +86,15 @@ void Application::meniTimovi() {
                 obrisiTim();
                 break;
             case 4:
-                dodajIgracaUTim();
+                pretraziTimove();
                 break;
             case 5:
-                prikaziTimove();
+                dodajIgracaUTim();
                 break;
             case 6:
+                prikaziTimove();
+                break;
+            case 7:
                 prikaziIgraceTima();
                 break;
             case 0:
@@ -301,6 +305,33 @@ void Application::obrisiTim() {
     }
 
     std::cout << "Brisanje tima nije uspjelo.\n";
+}
+
+void Application::pretraziTimove() const {
+    if (timService.vratiSveTimove().empty()) {
+        std::cout << "Nema unesenih timova za pretragu.\n";
+        return;
+    }
+
+    std::string pojam;
+    std::cout << "Unesite naziv ili grad tima za pretragu: ";
+    std::getline(std::cin >> std::ws, pojam);
+
+    const std::vector<const Tim*> rezultat = timService.pretraziTimove(pojam);
+    if (rezultat.empty()) {
+        std::cout << "Nema timova koji odgovaraju pretrazi.\n";
+        return;
+    }
+
+    std::cout << "\n--- Rezultati pretrage timova ---\n";
+    for (const Tim* tim : rezultat) {
+        std::cout << "ID: " << tim->getIdTima()
+                  << " | Naziv: " << tim->getNaziv()
+                  << " | Grad: " << tim->getGrad()
+                  << " | Trener: " << tim->getTrener()
+                  << " | Godina osnivanja: " << tim->getGodinaOsnivanja()
+                  << "\n";
+    }
 }
 
 void Application::dodajIgracaUTim() {

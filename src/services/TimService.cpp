@@ -1,6 +1,18 @@
 #include "services/TimService.h"
 
+#include <algorithm>
+#include <cctype>
 #include <stdexcept>
+
+namespace {
+std::string uMalaSlova(const std::string& tekst) {
+    std::string rezultat = tekst;
+    std::transform(rezultat.begin(), rezultat.end(), rezultat.begin(), [](unsigned char znak) {
+        return static_cast<char>(std::tolower(znak));
+    });
+    return rezultat;
+}
+}
 
 TimService::TimService(TimRepository& timRepository)
     : timRepository(timRepository), nextTimId(1), nextIgracId(1) {}
@@ -64,6 +76,25 @@ Igrac* TimService::pronadjiIgraca(int idIgraca) const {
     }
 
     return nullptr;
+}
+
+std::vector<const Tim*> TimService::pretraziTimove(const std::string& pojam) const {
+    const std::string trazeniPojam = uMalaSlova(pojam);
+    if (trazeniPojam.empty()) {
+        throw std::runtime_error("Pojam za pretragu ne smije biti prazan.");
+    }
+
+    std::vector<const Tim*> rezultat;
+    for (const Tim* tim : timRepository.getAll()) {
+        const std::string naziv = uMalaSlova(tim->getNaziv());
+        const std::string grad = uMalaSlova(tim->getGrad());
+
+        if (naziv.find(trazeniPojam) != std::string::npos || grad.find(trazeniPojam) != std::string::npos) {
+            rezultat.push_back(tim);
+        }
+    }
+
+    return rezultat;
 }
 
 const std::vector<Igrac*>& TimService::vratiIgraceTima(int idTima) const {

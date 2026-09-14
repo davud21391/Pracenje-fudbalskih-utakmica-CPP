@@ -24,6 +24,7 @@ private:
     void dodajTim();
     void urediTim();
     void obrisiTim();
+    void pretraziTimove() const;
     void dodajIgracaUTim();
     void meniUtakmice();
     void dodajUtakmicu();

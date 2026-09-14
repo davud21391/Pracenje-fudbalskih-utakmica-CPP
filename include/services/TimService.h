@@ -15,6 +15,7 @@ public:
     const std::vector<Tim*>& vratiSveTimove() const;
     Tim* pronadjiTim(int idTima) const;
     Igrac* pronadjiIgraca(int idIgraca) const;
+    std::vector<const Tim*> pretraziTimove(const std::string& pojam) const;
     const std::vector<Igrac*>& vratiIgraceTima(int idTima) const;
     void postaviSljedeceIdVrijednosti(int sljedeciTimId, int sljedeciIgracId);
 
