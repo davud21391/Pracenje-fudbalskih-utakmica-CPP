@@ -374,15 +374,17 @@ void Application::dodajUtakmicu() {
     }
 
     std::string datum;
-    const int idDomacina = ucitajInt("Unesite ID domaceg tima: ");
-    const int idGosta = ucitajInt("Unesite ID gostujuceg tima: ");
+    const int idDomacina = ucitajPostojeciTimId("Unesite ID domaceg tima: ");
+    int idGosta = ucitajPostojeciTimId("Unesite ID gostujuceg tima: ");
+    while (idGosta == idDomacina) {
+        std::cout << "Tim ne moze igrati sam protiv sebe. Odaberite drugi gostujuci tim.\n";
+        idGosta = ucitajPostojeciTimId("Unesite ID gostujuceg tima: ");
+    }
 
-    std::cout << "Unesite datum utakmice (dd.mm.gggg): ";
-    std::getline(std::cin >> std::ws, datum);
-
-    const int rezultatDomacin = ucitajInt("Unesite broj golova domacina: ");
-    const int rezultatGost = ucitajInt("Unesite broj golova gosta: ");
-    const int kolo = ucitajInt("Unesite kolo: ");
+    datum = ucitajDatum("Unesite datum utakmice (dd.mm.gggg): ");
+    const int rezultatDomacin = ucitajNenegativanInt("Unesite broj golova domacina: ");
+    const int rezultatGost = ucitajNenegativanInt("Unesite broj golova gosta: ");
+    const int kolo = ucitajPozitivanInt("Unesite kolo: ");
 
     Utakmica* utakmica = utakmicaService.dodajUtakmicu(idDomacina, idGosta, datum, rezultatDomacin, rezultatGost, kolo);
     std::cout << "Utakmica uspjesno dodata. ID utakmice: " << utakmica->getIdUtakmice() << "\n";
@@ -404,15 +406,17 @@ void Application::urediUtakmicu() {
         return;
     }
 
-    const int idDomacina = ucitajInt("Unesite novi ID domaceg tima: ");
-    const int idGosta = ucitajInt("Unesite novi ID gostujuceg tima: ");
+    const int idDomacina = ucitajPostojeciTimId("Unesite novi ID domaceg tima: ");
+    int idGosta = ucitajPostojeciTimId("Unesite novi ID gostujuceg tima: ");
+    while (idGosta == idDomacina) {
+        std::cout << "Tim ne moze igrati sam protiv sebe. Odaberite drugi gostujuci tim.\n";
+        idGosta = ucitajPostojeciTimId("Unesite novi ID gostujuceg tima: ");
+    }
 
-    std::cout << "Unesite novi datum utakmice (dd.mm.gggg): ";
-    std::getline(std::cin >> std::ws, datum);
-
-    const int rezultatDomacin = ucitajInt("Unesite novi broj golova domacina: ");
-    const int rezultatGost = ucitajInt("Unesite novi broj golova gosta: ");
-    const int kolo = ucitajInt("Unesite novo kolo: ");
+    datum = ucitajDatum("Unesite novi datum utakmice (dd.mm.gggg): ");
+    const int rezultatDomacin = ucitajNenegativanInt("Unesite novi broj golova domacina: ");
+    const int rezultatGost = ucitajNenegativanInt("Unesite novi broj golova gosta: ");
+    const int kolo = ucitajPozitivanInt("Unesite novo kolo: ");
 
     const bool obrisaniStrijelci = utakmicaService.urediUtakmicu(idUtakmice, idDomacina, idGosta, datum, rezultatDomacin, rezultatGost, kolo);
     std::cout << "Utakmica uspjesno uredjena.\n";
@@ -779,6 +783,54 @@ bool Application::ucitajDaNe(const char* prompt) const {
         }
 
         std::cout << "Molimo unesite 'd' ili 'n'.\n";
+    }
+}
+
+std::string Application::ucitajDatum(const char* prompt) const {
+    while (true) {
+        std::string datum;
+        std::cout << prompt;
+        std::getline(std::cin >> std::ws, datum);
+
+        try {
+            utakmicaService.pretraziPoDatumu(datum);
+            return datum;
+        } catch (const std::exception& ex) {
+            std::cout << "Greska: " << ex.what() << " Pokusajte ponovo.\n";
+        }
+    }
+}
+
+int Application::ucitajNenegativanInt(const char* prompt) const {
+    while (true) {
+        const int vrijednost = ucitajInt(prompt);
+        if (vrijednost >= 0) {
+            return vrijednost;
+        }
+
+        std::cout << "Vrijednost ne moze biti negativna. Pokusajte ponovo.\n";
+    }
+}
+
+int Application::ucitajPozitivanInt(const char* prompt) const {
+    while (true) {
+        const int vrijednost = ucitajInt(prompt);
+        if (vrijednost > 0) {
+            return vrijednost;
+        }
+
+        std::cout << "Vrijednost mora biti veca od 0. Pokusajte ponovo.\n";
+    }
+}
+
+int Application::ucitajPostojeciTimId(const char* prompt) const {
+    while (true) {
+        const int idTima = ucitajInt(prompt);
+        if (timService.pronadjiTim(idTima) != nullptr) {
+            return idTima;
+        }
+
+        std::cout << "Tim sa zadanim ID-em ne postoji. Pokusajte ponovo.\n";
     }
 }
 

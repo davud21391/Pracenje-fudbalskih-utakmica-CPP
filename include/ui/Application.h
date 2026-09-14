@@ -43,5 +43,9 @@ private:
     void prikaziListuStrijelaca() const;
     void ispisiListuUtakmica(const std::vector<const Utakmica*>& utakmice, const std::string& naslov) const;
     bool ucitajDaNe(const char* prompt) const;
+    std::string ucitajDatum(const char* prompt) const;
+    int ucitajNenegativanInt(const char* prompt) const;
+    int ucitajPozitivanInt(const char* prompt) const;
+    int ucitajPostojeciTimId(const char* prompt) const;
     int ucitajInt(const char* prompt) const;
 };
