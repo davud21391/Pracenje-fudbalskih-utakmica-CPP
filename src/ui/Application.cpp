@@ -1,5 +1,6 @@
 #include "ui/Application.h"
 
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -547,12 +548,22 @@ void Application::prikaziTimove() const {
     }
 
     std::cout << "\n--- Lista timova ---\n";
+    std::cout << std::left
+              << std::setw(6) << "ID"
+              << std::setw(24) << "Naziv"
+              << std::setw(18) << "Grad"
+              << std::setw(24) << "Trener"
+              << std::setw(10) << "Godina"
+              << "\n";
+    std::cout << std::string(82, '-') << "\n";
+
     for (const Tim* tim : timovi) {
-        std::cout << "ID: " << tim->getIdTima()
-                  << " | Naziv: " << tim->getNaziv()
-                  << " | Grad: " << tim->getGrad()
-                  << " | Trener: " << tim->getTrener()
-                  << " | Godina osnivanja: " << tim->getGodinaOsnivanja()
+        std::cout << std::left
+                  << std::setw(6) << tim->getIdTima()
+                  << std::setw(24) << tim->getNaziv()
+                  << std::setw(18) << tim->getGrad()
+                  << std::setw(24) << tim->getTrener()
+                  << std::setw(10) << tim->getGodinaOsnivanja()
                   << "\n";
     }
 }
@@ -578,11 +589,20 @@ void Application::prikaziIgraceTima() const {
     }
 
     std::cout << "\n--- Igraci tima: " << tim->getNaziv() << " ---\n";
+    std::cout << std::left
+              << std::setw(6) << "ID"
+              << std::setw(28) << "Ime i prezime"
+              << std::setw(12) << "Dres"
+              << std::setw(18) << "Pozicija"
+              << "\n";
+    std::cout << std::string(64, '-') << "\n";
+
     for (const Igrac* igrac : igraci) {
-        std::cout << "ID: " << igrac->getIdIgraca()
-                  << " | Ime i prezime: " << igrac->getPunoIme()
-                  << " | Broj dresa: " << igrac->getBrojDresa()
-                  << " | Pozicija: " << igrac->getPozicija()
+        std::cout << std::left
+                  << std::setw(6) << igrac->getIdIgraca()
+                  << std::setw(28) << igrac->getPunoIme()
+                  << std::setw(12) << igrac->getBrojDresa()
+                  << std::setw(18) << igrac->getPozicija()
                   << "\n";
     }
 }
@@ -612,20 +632,35 @@ void Application::prikaziTabelu() const {
     }
 
     std::cout << "\n--- Tabela ---\n";
-    std::cout << "Poz | Tim | OU | P | N | I | DG | PG | GR | B\n";
+    std::cout << std::left
+              << std::setw(6) << "Poz"
+              << std::setw(24) << "Tim"
+              << std::right
+              << std::setw(5) << "OU"
+              << std::setw(5) << "P"
+              << std::setw(5) << "N"
+              << std::setw(5) << "I"
+              << std::setw(6) << "DG"
+              << std::setw(6) << "PG"
+              << std::setw(6) << "GR"
+              << std::setw(6) << "B"
+              << "\n";
+    std::cout << std::string(74, '-') << "\n";
 
     int pozicija = 1;
     for (const StatistikaTima& red : tabela) {
-        std::cout << pozicija++
-                  << ". | " << red.nazivTima
-                  << " | " << red.odigrane
-                  << " | " << red.pobjede
-                  << " | " << red.nerijesene
-                  << " | " << red.porazi
-                  << " | " << red.datiGolovi
-                  << " | " << red.primljeniGolovi
-                  << " | " << red.golRazlika
-                  << " | " << red.bodovi
+        std::cout << std::left
+                  << std::setw(6) << pozicija++
+                  << std::setw(24) << red.nazivTima
+                  << std::right
+                  << std::setw(5) << red.odigrane
+                  << std::setw(5) << red.pobjede
+                  << std::setw(5) << red.nerijesene
+                  << std::setw(5) << red.porazi
+                  << std::setw(6) << red.datiGolovi
+                  << std::setw(6) << red.primljeniGolovi
+                  << std::setw(6) << red.golRazlika
+                  << std::setw(6) << red.bodovi
                   << "\n";
     }
 }
@@ -716,20 +751,31 @@ void Application::pretraziUtakmice() const {
 
 void Application::ispisiListuUtakmica(const std::vector<const Utakmica*>& utakmice, const std::string& naslov) const {
     std::cout << "\n--- " << naslov << " ---\n";
+    std::cout << std::left
+              << std::setw(6) << "ID"
+              << std::setw(7) << "Kolo"
+              << std::setw(13) << "Datum"
+              << std::setw(22) << "Domacin"
+              << std::setw(9) << "Rezultat"
+              << std::setw(22) << "Gost"
+              << "Strijelci"
+              << "\n";
+    std::cout << std::string(110, '-') << "\n";
+
     for (const Utakmica* utakmica : utakmice) {
         const Tim* domacin = timService.pronadjiTim(utakmica->getIdDomacina());
         const Tim* gost = timService.pronadjiTim(utakmica->getIdGosta());
+        const std::string rezultat = std::to_string(utakmica->getRezultatDomacin()) + ":" + std::to_string(utakmica->getRezultatGost());
 
-        std::cout << "ID: " << utakmica->getIdUtakmice()
-                  << " | Kolo: " << utakmica->getKolo()
-                  << " | Datum: " << utakmica->getDatum()
-                  << " | " << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
-                  << " " << utakmica->getRezultatDomacin()
-                  << ":" << utakmica->getRezultatGost() << " "
-                  << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost");
+        std::cout << std::left
+                  << std::setw(6) << utakmica->getIdUtakmice()
+                  << std::setw(7) << utakmica->getKolo()
+                  << std::setw(13) << utakmica->getDatum()
+                  << std::setw(22) << (domacin != nullptr ? domacin->getNaziv() : "Nepoznat domacin")
+                  << std::setw(9) << rezultat
+                  << std::setw(22) << (gost != nullptr ? gost->getNaziv() : "Nepoznat gost");
 
         if (!utakmica->getStrijelci().empty()) {
-            std::cout << " | Strijelci: ";
             bool prvi = true;
             for (const Strijelac& strijelac : utakmica->getStrijelci()) {
                 Igrac* igrac = timService.pronadjiIgraca(strijelac.getIdIgraca());
@@ -746,6 +792,8 @@ void Application::ispisiListuUtakmica(const std::vector<const Utakmica*>& utakmi
 
                 prvi = false;
             }
+        } else {
+            std::cout << "-";
         }
 
         std::cout << "\n";
@@ -760,11 +808,24 @@ void Application::prikaziListuStrijelaca() const {
     }
 
     std::cout << "\n--- Lista strijelaca ---\n";
+    std::cout << std::left
+              << std::setw(6) << "RB"
+              << std::setw(30) << "Igrac"
+              << std::right
+              << std::setw(8) << "Golovi"
+              << std::setw(12) << "ID igraca"
+              << "\n";
+    std::cout << std::string(56, '-') << "\n";
+
     int redniBroj = 1;
     for (const StatistikaStrijelca& stavka : statistika) {
-        std::cout << redniBroj++ << ". " << stavka.punoIme
-                  << " | Golovi: " << stavka.brojGolova
-                  << " | ID igraca: " << stavka.idIgraca << "\n";
+        std::cout << std::left
+                  << std::setw(6) << redniBroj++
+                  << std::setw(30) << stavka.punoIme
+                  << std::right
+                  << std::setw(8) << stavka.brojGolova
+                  << std::setw(12) << stavka.idIgraca
+                  << "\n";
     }
 }
 
